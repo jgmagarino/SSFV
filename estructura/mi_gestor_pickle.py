@@ -51,7 +51,6 @@ def guardar_informacion_pickle(nombre_archivo, data: list):
             pickle.dump(data, archivo)
 
 
-
 def borrar_archivo_pickle(nombre_archivo):
     """
     Borra un archivo .pkl
