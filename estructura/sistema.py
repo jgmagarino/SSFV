@@ -181,6 +181,10 @@ class Sistema:
         self.periodo_de_recuperacion = self.costo / self.ingreso
         return self.periodo_de_recuperacion
 
+    def to_string(self):
+        return (f"panel: {self.panel.identificador},tecnologia: {self.tecnologia.material},"
+                f"zona: {self.zona.zona}")
+
 
 "Datos de prueba"
 
@@ -205,3 +209,4 @@ class Sistema:
 #                 Sistema(3, "peline", "La Habana")]
 #
 # guardar_informacion_pickle("salva/Sistemas", sistema_list)
+
