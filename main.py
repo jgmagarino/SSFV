@@ -1,11 +1,8 @@
 import flet as ft
-from estructura import mi_gestor_pickle
 
 
 def main(page: ft.Page):
     page.title = "Sistema Solar Fotovoltaico"
-
-    column_sistemas = ft.Column()
 
     rail = ft.NavigationRail(
         selected_index=0,
