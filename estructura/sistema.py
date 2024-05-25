@@ -181,3 +181,27 @@ class Sistema:
         self.periodo_de_recuperacion = self.costo / self.ingreso
         return self.periodo_de_recuperacion
 
+
+"Datos de prueba"
+
+# hsp_list = [Hsp("Cienfuegos", 1),
+#             Hsp("Villa Clara", 2),
+#             Hsp("La Habana", 3)]
+#
+# panel_list = [Panel(1, 1, 1, 1),
+#               Panel(2, 1, 1, 1),
+#               Panel(3, 1, 1, 1)]
+#
+# tecnologia_list = [Tecnologia("silicio", 5),
+#                    Tecnologia("ormigon", 6),
+#                    Tecnologia("peline", 7)]
+#
+# guardar_informacion_pickle("salva/Hsp", hsp_list)
+# guardar_informacion_pickle("salva/Paneles", panel_list)
+# guardar_informacion_pickle("salva/Tecnologias", tecnologia_list)
+#
+# sistema_list = [Sistema(1, "silicio", "Cienfuegos"),
+#                 Sistema(2, "ormigon", "Villa Clara"),
+#                 Sistema(3, "peline", "La Habana")]
+#
+# guardar_informacion_pickle("salva/Sistemas", sistema_list)
