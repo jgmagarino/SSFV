@@ -1,4 +1,7 @@
 import flet as ft
+from funciones import mi_gestor_pickle as pkl
+
+l = pkl.cargar_informacion_pickle("../salva/Sistemas")
 
 column_sistemas = ft.Column(
     [ft.Text("Sistemas")]

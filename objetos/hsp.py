@@ -10,5 +10,6 @@ class Hsp:
         self.zona = zona
         self.valor = valor
 
-    def to_string(self):
-        return f'zona: {self.zona}, valor: {self.valor}'
+    @classmethod
+    def desde_diccionario(cls, diccionario):
+        return cls(**diccionario)

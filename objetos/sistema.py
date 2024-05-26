@@ -5,7 +5,7 @@ objetivo armacenar la informacion espesifica de un SSFV.
 
 """
 
-from funciones import mi_gestor_pickle as pkl
+from funciones import gestor_json as jsn
 from hsp import *
 from panel import *
 
@@ -21,49 +21,30 @@ def _buscar_en_listas(panel, tecnologia, zona) -> tuple[Panel, Tecnologia, Hsp]:
     :return:
     """
 
-    paneles_list: list[Panel] = pkl.cargar_informacion_pickle("../salva/Paneles")
-    tecnologias_list: list[Tecnologia] = pkl.cargar_informacion_pickle("../salva/Tecnologias")
-    hsp_list: list[Hsp] = pkl.cargar_informacion_pickle("../salva/Hsp")
+    p = None
+    t = None
+    h = None
 
-    i = 0  # Posicion de la lista
-    a, b, c = True, True, True  # Al estar en en False indica que ya se encontro el objeto
-    # deseado, de lo contrario se debe seguir recorriendo la lista.
-    p, t, z = None, None, None  # Aqui se almacena el objeto en caso de ser encontrado.
+    paneles = jsn.cargar("../salva/Paneles.json")
+    hsps = jsn.cargar("../salva/Hsp.json")
+    tecnologias = jsn.cargar("../salva/Tecnologias.json")
 
-    while i < len(paneles_list) or i < len(tecnologias_list) or i < len(hsp_list):
-        # Este ciclo tiene como condicion de parada cuando la variable i supere el tamanno
-        # de las tres listas.
+    for i in paneles:
+        if panel == i["identificador"]:
+            p = Panel.desde_diccionario(i)
+            print(f"encontro el panel {i}")
 
-        # En cada una de las tres condicionales siguientes se verifica si la variable
-        # i ya supero el tamanno de la lista para evitar errores de indice.
-        if i < len(paneles_list) and a:
-            if panel == paneles_list[i].identificador:
-                p = paneles_list[i]
-                a = False
-                print("Encontro panel")
+    for i in tecnologias:
+        if tecnologia == i["material"]:
+            t = Tecnologia.desde_diccionario(i)
+            print(f"encontro la tecnologia {i}")
 
-        if i < len(tecnologias_list) and b:
-            if tecnologia == tecnologias_list[i].material:
-                t = tecnologias_list[i]
-                b = False
-                print("Encontro tecnologia")
+    for i in hsps:
+        if zona == i["zona"]:
+            h = Hsp.desde_diccionario(i)
+            print(f"encontro la hsp {i}")
 
-        if i < len(hsp_list) and c:
-            if zona == hsp_list[i].zona:
-                z = hsp_list[i]
-                c = False
-                print("Encontro zona")
-
-        # Se compueba si las variables a, b y c estan en False, de ser asi
-        # se cierra el ciclo ya que no es necesario seguir recorriendo las
-        # listas.
-        if not (a or b or c):
-            break
-
-        i += 1
-        print("sigue")
-
-    return p, t, z
+    return p, t, h
 
 
 class Sistema:
@@ -181,9 +162,23 @@ class Sistema:
         self.periodo_de_recuperacion = self.costo / self.ingreso
         return self.periodo_de_recuperacion
 
-    def to_string(self):
-        return (f"panel: {self.panel.identificador},tecnologia: {self.tecnologia.material},"
-                f"zona: {self.zona.zona}")
+    @classmethod
+    def desde_diccionario(cls, diccionario):
+        return cls(**diccionario)
+
+    @property
+    def __dict__(self):
+        return {
+            "panel": self.panel.identificador,
+            "tecnologia": self.tecnologia.material,
+            "zona": self.zona.zona,
+            "energia_util": self.energia_util,
+            "numero_de_paneles": self.numero_de_paneles,
+            "area": self.area,
+            "costo": self.costo,
+            "ingreso": self.ingreso,
+            "periodo_de_recuperacion": self.periodo_de_recuperacion
+        }
 
 
 "Datos de prueba"
@@ -200,18 +195,36 @@ class Sistema:
 #                    Tecnologia("ormigon", 6),
 #                    Tecnologia("peline", 7)]
 #
-# guardar_informacion_pickle("salva/Hsp", hsp_list)
-# guardar_informacion_pickle("salva/Paneles", panel_list)
-# guardar_informacion_pickle("salva/Tecnologias", tecnologia_list)
+# aux_hsp = []
 #
-# sistema_list = [Sistema(1, "silicio", "Cienfuegos"),
-#                 Sistema(2, "ormigon", "Villa Clara"),
-#                 Sistema(3, "peline", "La Habana")]
+# for i in hsp_list:
+#     aux_hsp.append(i.__dict__)
 #
-# guardar_informacion_pickle("salva/Sistemas", sistema_list)
+# aux_tecnologia = []
+#
+# for i in tecnologia_list:
+#     aux_tecnologia.append(i.__dict__)
+#
+# aux_panel = []
+#
+# for i in panel_list:
+#     aux_panel.append(i.__dict__)
+#
+# jsn.guardar("../salva/Hsp.json", aux_hsp)
+# jsn.guardar("../salva/Paneles.json", aux_panel)
+# jsn.guardar("../salva/Tecnologias.json", aux_tecnologia)
 
+sistema_list = [Sistema(1, "silicio", "Cienfuegos"),
+                Sistema(2, "ormigon", "Villa Clara"),
+                Sistema(3, "peline", "La Habana")]
 
-l = pkl.cargar_informacion_pickle("../salva/Sistemas")
+aux_sistema = []
 
-for i in l:
-    print(i.to_string())
+for i in sistema_list:
+    aux_sistema.append(i.__dict__)
+
+jsn.guardar("../salva/Sistemas.json", aux_sistema)
+
+a = jsn.cargar("../salva/Paneles.json")
+
+print(a)

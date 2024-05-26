@@ -9,46 +9,45 @@ resumirlo en funciones mas lejibles y faciles de usar.
 """
 
 
-import pickle
+import dill
 import os
+from pathlib import Path
 
 
-def crear_archivo_pickle(nombre_archivo):
+def cargar_informacion_pickle(direccion):
     """
-    Crea un archivo .pkl
-    :param nombre_archivo: nombre del archivo
+    Carga un objeto desde un archivo.pkl en la ruta especificada utilizando dill para deserializar el objeto.
+
+    :param direccion: La ruta completa del archivo desde donde se cargará el objeto.
+    :return: El objeto deserializado cargado desde el archivo.
     """
-    with open(nombre_archivo, 'wb') as archivo:
-        pickle.dump({}, archivo)
+    # Verifica si el archivo existe
+    ruta = Path(direccion)
+    if not ruta.exists():
+        raise FileNotFoundError(f"El archivo {direccion} no existe.")
+
+    # Abre el archivo en modo lectura binaria ('rb')
+    with open(ruta, 'rb') as archivo:
+        objeto = dill.load(archivo)
+
+    return objeto
 
 
-def cargar_informacion_pickle(nombre_archivo) -> list:
+def guardar_informacion_pickle(direccion, objeto):
     """
-    Carga un archivo .pkl
-    :param nombre_archivo: nombre del archivo
-    :return: retornara una lista
-    """
-    if os.path.exists(nombre_archivo):
-        with open(nombre_archivo, 'rb') as archivo:
-            data = pickle.load(archivo)
-        return data
-    else:
-        print(f"El archivo {nombre_archivo} no existe.")
+    Guarda un objeto en un archivo.pkl en la ruta especificada utilizando dill para serializar el objeto.
 
+    :param direccion: La ruta completa donde se guardará el archivo.
+    :param objeto: El objeto que se desea serializar y guardar en el archivo.
+    """
+    # Verifica si el directorio padre existe, si no, lo crea
+    ruta = Path(direccion)
+    if not ruta.parent.exists():
+        ruta.parent.mkdir(parents=True)
 
-def guardar_informacion_pickle(nombre_archivo, data: list):
-    """
-    Guarda una lista en archivo .pkl
-    :param nombre_archivo: nombre del archivo
-    :param data: lista que se desea guardar
-    """
-    if os.path.exists(nombre_archivo):
-        with open(nombre_archivo, 'wb') as archivo:
-            pickle.dump(data, archivo)
-    else:
-        crear_archivo_pickle(nombre_archivo)
-        with open(nombre_archivo, 'wb') as archivo:
-            pickle.dump(data, archivo)
+    # Abre el archivo en modo escritura binaria ('wb')
+    with open(ruta, 'wb') as archivo:
+        dill.dump(objeto, archivo)
 
 
 def borrar_archivo_pickle(nombre_archivo):
