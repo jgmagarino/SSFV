@@ -5,9 +5,9 @@ objetivo armacenar la informacion espesifica de un SSFV.
 
 """
 
-from mi_gestor_pickle import *
-from panel import *
+from funciones import mi_gestor_pickle as pkl
 from hsp import *
+from panel import *
 
 
 def _buscar_en_listas(panel, tecnologia, zona) -> tuple[Panel, Tecnologia, Hsp]:
@@ -21,9 +21,9 @@ def _buscar_en_listas(panel, tecnologia, zona) -> tuple[Panel, Tecnologia, Hsp]:
     :return:
     """
 
-    paneles_list: list[Panel] = cargar_informacion_pickle("salva/Paneles")
-    tecnologias_list: list[Tecnologia] = cargar_informacion_pickle("salva/Tecnologias")
-    hsp_list: list[Hsp] = cargar_informacion_pickle("salva/Hsp")
+    paneles_list: list[Panel] = pkl.cargar_informacion_pickle("../salva/Paneles")
+    tecnologias_list: list[Tecnologia] = pkl.cargar_informacion_pickle("../salva/Tecnologias")
+    hsp_list: list[Hsp] = pkl.cargar_informacion_pickle("../salva/Hsp")
 
     i = 0  # Posicion de la lista
     a, b, c = True, True, True  # Al estar en en False indica que ya se encontro el objeto
@@ -210,3 +210,8 @@ class Sistema:
 #
 # guardar_informacion_pickle("salva/Sistemas", sistema_list)
 
+
+l = pkl.cargar_informacion_pickle("../salva/Sistemas")
+
+for i in l:
+    print(i.to_string())

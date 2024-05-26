@@ -1,8 +1,23 @@
 import flet as ft
+from organizacion import arry_columns
+
+global column
 
 
 def main(page: ft.Page):
     page.title = "Sistema Solar Fotovoltaico"
+
+    global column
+    column = arry_columns[0]
+
+    def change_column(e):
+        global column
+        column = arry_columns[e.control.selected_index]
+
+        row.controls.pop()
+        row.controls.append(column)
+
+        page.update()
 
     rail = ft.NavigationRail(
         selected_index=0,
@@ -13,16 +28,22 @@ def main(page: ft.Page):
         group_alignment=-0.2,
         destinations=[
             ft.NavigationRailDestination(
-                icon=ft.icons.SOLAR_POWER_OUTLINED, selected_icon=ft.icons.SOLAR_POWER, label="Sistemas"
+                icon=ft.icons.SOLAR_POWER_OUTLINED,
+                selected_icon=ft.icons.SOLAR_POWER,
+                label="Sistemas"
             ),
             ft.NavigationRailDestination(
                 icon=ft.icons.POWER_INPUT,
                 label="Paneles",
             ),
             ft.NavigationRailDestination(
-                padding=ft.padding.only(bottom=200),
                 icon=ft.icons.ELECTRICAL_SERVICES_SHARP,
                 label="Tecnologias",
+            ),
+            ft.NavigationRailDestination(
+                padding=ft.padding.only(bottom=200),
+                icon=ft.icons.SUNNY,
+                label="HSP",
             ),
             ft.NavigationRailDestination(
                 padding=ft.padding.only(top=100),
@@ -36,19 +57,19 @@ def main(page: ft.Page):
                 label="Ayuda"
             )
         ],
-        on_change=lambda e: print("Selected destination:", e.control.selected_index),
+        on_change=change_column,
     )
 
-    page.add(
-        ft.Row(
+    row = ft.Row(
             [
                 rail,
                 ft.VerticalDivider(),
-                ft.Column([ft.Text("Body!")], alignment=ft.MainAxisAlignment.START, expand=True),
+                column,
             ],
             expand=True,
         )
-    )
+
+    page.add(row)
 
 
 ft.app(target=main)
