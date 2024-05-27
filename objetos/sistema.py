@@ -6,49 +6,48 @@ objetivo armacenar la informacion espesifica de un SSFV.
 """
 
 from funciones import gestor_json as jsn
-from hsp import *
-from panel import *
+import objetos_segundarios as obj
 
 
-def _buscar_en_listas(panel, tecnologia, zona) -> tuple[Panel, Tecnologia, Hsp]:
+def _buscar_en_listas(panel_param: int, tecnologia_param: str, zona_param: str) -> tuple[dict, dict, dict]:
     """
     Carga de los archivos .pkl guardados en la carpeta salva,se obtienen tres
     listas y se buscan en ellas los objetos especificados.
 
-    :param panel: identificador del tipo de panel a usar.
-    :param tecnologia: tecnolgia definida por el material.
-    :param zona: zona en la que se hace el sistema, esta define la hsp(hora solar pico).
+    :param panel_param: identificador del tipo de panel a usar.
+    :param tecnologia_param: tecnolgia definida por el material.
+    :param zona_param: zona en la que se hace el sistema, esta define la hsp(hora solar pico).
     :return:
     """
 
-    p = None
-    t = None
-    h = None
+    panel = None
+    tecnologia = None
+    hsp = None
 
-    paneles = jsn.cargar("../salva/Paneles.json")
-    hsps = jsn.cargar("../salva/Hsp.json")
-    tecnologias = jsn.cargar("../salva/Tecnologias.json")
+    paneles: list[dict] = jsn.cargar("../salva/Paneles.json")
+    hsps: list[dict] = jsn.cargar("../salva/Hsp.json")
+    tecnologias: list[dict] = jsn.cargar("../salva/Tecnologias.json")
 
-    for i in paneles:
-        if panel == i["identificador"]:
-            p = Panel.desde_diccionario(i)
-            print(f"encontro el panel {i}")
+    for p in paneles:
+        if panel_param == p["identificador"]:
+            panel = p
+            print(f"encontro el panel {p}")
 
-    for i in tecnologias:
-        if tecnologia == i["material"]:
-            t = Tecnologia.desde_diccionario(i)
-            print(f"encontro la tecnologia {i}")
+    for t in tecnologias:
+        if tecnologia_param == t["material"]:
+            tecnologia = t
+            print(f"encontro la tecnologia {t}")
 
-    for i in hsps:
-        if zona == i["zona"]:
-            h = Hsp.desde_diccionario(i)
-            print(f"encontro la hsp {i}")
+    for h in hsps:
+        if zona_param == h["zona"]:
+            hsp = h
+            print(f"encontro la hsp {h}")
 
-    return p, t, h
+    return panel, tecnologia, hsp
 
 
 class Sistema:
-    def __init__(self, panel: int, tecnologia: str, zona: str):
+    def __init__(self, nombre_sistema: str, panel: int, tecnologia: str, zona: str):
         """
         Al inicializar el sistema hace uso de la funcion privada _buscar_en_listas
         para dado los tres parametros buscar en la lista de paneles, la lista de hsp
@@ -58,11 +57,13 @@ class Sistema:
         :param tecnologia: tecnolgia definida por el material.
         :param zona: zona en la que se hace el sistema, esta define la hsp(hora solar pico).
         """
+        self.nombre_sistema = nombre_sistema
+
         resultado = _buscar_en_listas(panel, tecnologia, zona)
 
-        self.panel: Panel = resultado[0]
-        self.tecnologia: Tecnologia = resultado[1]
-        self.zona: Hsp = resultado[2]
+        self.panel: dict = resultado[0]
+        self.tecnologia: dict = resultado[1]
+        self.zona: dict = resultado[2]
 
         # Parametros del sistema que quedaran definidos a la hora de llamar las diferentes funciones.
         self.energia_util = 0.0
@@ -79,7 +80,7 @@ class Sistema:
         :param potencia: potencia a instalar en el sistema.
         """
 
-        self.energia_util = potencia * self.zona.valor
+        self.energia_util = potencia * self.zona["valor"]
         return self.energia_util
 
     def energia_util_disponible(self, area_disponible):
@@ -90,13 +91,13 @@ class Sistema:
         :param area_disponible: area disponible para hacer el sistema
         """
         self.area = area_disponible
-        self.numero_de_paneles = area_disponible / 1.4 * self.tecnologia.area
+        self.numero_de_paneles = area_disponible / 1.4 * self.tecnologia["area"]
 
-        potencia = self.numero_de_paneles * self.panel.potencia_pico
+        potencia = self.numero_de_paneles * self.panel["potencia_pico"]
 
-        self.energia_util = potencia * self.zona.valor
+        self.energia_util = potencia * self.zona["valor"]
 
-        return potencia * self.zona.valor
+        return potencia * self.zona["valor"]
 
     def numero_de_paneles_def(self):
         """
@@ -107,7 +108,7 @@ class Sistema:
         if self.energia_util == 0.0:
             print("Se necesita la energia util para calcular el numero de paneles")
         else:
-            aux = 0.654 * self.zona.valor * self.panel.potencia_pico  # Energia que genera un panel en esta zona.
+            aux = 0.654 * self.zona["valor"] * self.panel["potencia_pico"]  # Energia que genera un panel en esta zona.
             self.numero_de_paneles = (self.energia_util / aux) + 1
             return self.numero_de_paneles
 
@@ -123,9 +124,9 @@ class Sistema:
             print("Se necesita el numero de paneles para obtener el area requerida")
         else:
             if al_sur:
-                self.area = 1.4 * self.numero_de_paneles * self.tecnologia.area
+                self.area = 1.4 * self.numero_de_paneles * self.tecnologia["area"]
             else:
-                self.area = self.numero_de_paneles * self.tecnologia.area
+                self.area = self.numero_de_paneles * self.tecnologia["area"]
 
             return self.area
 
@@ -141,10 +142,10 @@ class Sistema:
             print("Se tiene que calcular el numero de paneles.")
         else:
             if costo_adicional:
-                self.costo = self.numero_de_paneles * self.panel.precio
+                self.costo = self.numero_de_paneles * self.panel["precio"]
                 self.costo += self.costo * (3 / 10)
             else:
-                self.costo = self.numero_de_paneles * self.panel.precio
+                self.costo = self.numero_de_paneles * self.panel["precio"]
 
             return self.costo
 
@@ -153,25 +154,26 @@ class Sistema:
         Calculo del ingreso generado por el sistema en un anno, tiene que ser previamente
         calculada la energia util por dia del sistema.
         """
-        self.ingreso = 365 * self.energia_util * self.panel.precio_kwh_sen
+        self.ingreso = 365 * self.energia_util * self.panel["precio_kwh_sen"]
 
     def periodo_de_recuperacion_def(self):
         """
-        Periodo de recuperacion de la invercion en annos.
+        Periodo de recuperacion de la invercion en años.
         """
         self.periodo_de_recuperacion = self.costo / self.ingreso
         return self.periodo_de_recuperacion
 
     @classmethod
-    def desde_diccionario(cls, diccionario):
+    def desde_diccionario(cls, diccionario: dict):
         return cls(**diccionario)
 
     @property
     def __dict__(self):
         return {
-            "panel": self.panel.identificador,
-            "tecnologia": self.tecnologia.material,
-            "zona": self.zona.zona,
+            "nombre_sistema": self.nombre_sistema,
+            "panel": self.panel,
+            "tecnologia": self.tecnologia,
+            "zona": self.zona,
             "energia_util": self.energia_util,
             "numero_de_paneles": self.numero_de_paneles,
             "area": self.area,
@@ -183,40 +185,25 @@ class Sistema:
 
 "Datos de prueba"
 
-# hsp_list = [Hsp("Cienfuegos", 1),
-#             Hsp("Villa Clara", 2),
-#             Hsp("La Habana", 3)]
-#
-# panel_list = [Panel(1, 1, 1, 1),
-#               Panel(2, 1, 1, 1),
-#               Panel(3, 1, 1, 1)]
-#
-# tecnologia_list = [Tecnologia("silicio", 5),
-#                    Tecnologia("ormigon", 6),
-#                    Tecnologia("peline", 7)]
-#
-# aux_hsp = []
-#
-# for i in hsp_list:
-#     aux_hsp.append(i.__dict__)
-#
-# aux_tecnologia = []
-#
-# for i in tecnologia_list:
-#     aux_tecnologia.append(i.__dict__)
-#
-# aux_panel = []
-#
-# for i in panel_list:
-#     aux_panel.append(i.__dict__)
-#
-# jsn.guardar("../salva/Hsp.json", aux_hsp)
-# jsn.guardar("../salva/Paneles.json", aux_panel)
-# jsn.guardar("../salva/Tecnologias.json", aux_tecnologia)
+hsp_list = [obj.crear_hsp("Cienfuegos", 1),
+            obj.crear_hsp("Villa Clara", 2),
+            obj.crear_hsp("La Habana", 3)]
 
-sistema_list = [Sistema(1, "silicio", "Cienfuegos"),
-                Sistema(2, "ormigon", "Villa Clara"),
-                Sistema(3, "peline", "La Habana")]
+panel_list = [obj.crear_panel(1, 1, 1, 1),
+              obj.crear_panel(2, 1, 1, 1),
+              obj.crear_panel(3, 1, 1, 1)]
+
+tecnologia_list = [obj.crear_tecnologia("silicio", 5),
+                   obj.crear_tecnologia("ormigon", 6),
+                   obj.crear_tecnologia("peline", 7)]
+
+jsn.guardar("../salva/Hsp.json", hsp_list)
+jsn.guardar("../salva/Paneles.json", panel_list)
+jsn.guardar("../salva/Tecnologias.json", tecnologia_list)
+
+sistema_list = [Sistema("Sistema Cienfuegos", 1, "silicio", "Cienfuegos"),
+                Sistema("Sistema Villa Clara", 2, "ormigon", "Villa Clara"),
+                Sistema("Sistema La Habana", 3, "peline", "La Habana")]
 
 aux_sistema = []
 
@@ -225,6 +212,6 @@ for i in sistema_list:
 
 jsn.guardar("../salva/Sistemas.json", aux_sistema)
 
-a = jsn.cargar("../salva/Paneles.json")
+a = jsn.cargar("../salva/Sistemas.json")
 
 print(a)
