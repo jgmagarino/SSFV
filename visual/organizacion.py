@@ -1,11 +1,13 @@
 import flet as ft
-from funciones import mi_gestor_pickle as pkl
+from funciones import gestor_json as jsn
 
-l = pkl.cargar_informacion_pickle("../salva/Sistemas")
 
-column_sistemas = ft.Column(
-    [ft.Text("Sistemas")]
-)
+sistemas: list[dict] = jsn.cargar("../salva/Sistemas.json")
+
+column_sistemas = ft.Column()
+
+for i in sistemas:
+    column_sistemas.controls.append(ft.ElevatedButton(i["nombre_sistema"]))
 
 column_paneles = ft.Column(
     [ft.Text("Paneles")]
