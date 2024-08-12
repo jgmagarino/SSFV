@@ -12,10 +12,12 @@ def crear_tecnologia(material: str, area: float) -> dict:
     return {"material": material, "area": area}
 
 
-def crear_panel(identificador: int, potencia_pico: float,
+def crear_panel(identificador: int, potencia_pico: float, material_celdas: str, area: float,
                 precio: float, precio_kwh_sen: float) -> dict:
     return {"identificador": identificador,
             "potencia_pico": potencia_pico,
+            "material_celdas": material_celdas,
+            "area": area,
             "precio": precio,
             "precio_kwh_sen": precio_kwh_sen}
 

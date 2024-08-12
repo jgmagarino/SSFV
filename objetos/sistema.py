@@ -4,54 +4,13 @@
 objetivo armacenar la informacion espesifica de un SSFV.
 
 """
-
-from funciones import gestor_json as jsn
-import objetos_segundarios as obj
-
-
-def _buscar_en_listas(panel_param: int, tecnologia_param: str, zona_param: str) -> tuple[dict, dict, dict]:
-    """
-    Carga de los archivos .pkl guardados en la carpeta salva,se obtienen tres
-    listas y se buscan en ellas los objetos especificados.
-
-    :param panel_param: identificador del tipo de panel a usar.
-    :param tecnologia_param: tecnolgia definida por el material.
-    :param zona_param: zona en la que se hace el sistema, esta define la hsp(hora solar pico).
-    :return:
-    """
-
-    panel = None
-    tecnologia = None
-    hsp = None
-
-    paneles: list[dict] = jsn.cargar("../salva/Paneles.json")
-    hsps: list[dict] = jsn.cargar("../salva/Hsp.json")
-    tecnologias: list[dict] = jsn.cargar("../salva/Tecnologias.json")
-
-    for p in paneles:
-        if panel_param == p["identificador"]:
-            panel = p
-            print(f"encontro el panel {p}")
-
-    for t in tecnologias:
-        if tecnologia_param == t["material"]:
-            tecnologia = t
-            print(f"encontro la tecnologia {t}")
-
-    for h in hsps:
-        if zona_param == h["zona"]:
-            hsp = h
-            print(f"encontro la hsp {h}")
-
-    return panel, tecnologia, hsp
+from json_manager import get_unic_value
 
 
 class Sistema:
     def __init__(self, nombre_sistema: str, panel: int, tecnologia: str, zona: str):
         """
-        Al inicializar el sistema hace uso de la funcion privada _buscar_en_listas
-        para dado los tres parametros buscar en la lista de paneles, la lista de hsp
-        y la lista de tecnologias, los objetos a usar en especifico.
+        Al iniciar el sistema, busca el panel, la tecnologia y la zona especificada.
 
         :param panel: identificador del tipo de panel a usar.
         :param tecnologia: tecnolgia definida por el material.
@@ -59,11 +18,15 @@ class Sistema:
         """
         self.nombre_sistema = nombre_sistema
 
-        resultado = _buscar_en_listas(panel, tecnologia, zona)
-
-        self.panel: dict = resultado[0]
-        self.tecnologia: dict = resultado[1]
-        self.zona: dict = resultado[2]
+        self.panel: dict = get_unic_value("../salva/Paneles.json",
+                                          key="identificador",
+                                          value=panel)
+        self.tecnologia: dict = get_unic_value("../salva/Tecnologias.json",
+                                               key="material",
+                                               value=tecnologia)
+        self.zona: dict = get_unic_value("../salva/Hsp.json",
+                                         key="zona",
+                                         value=zona)
 
         # Parametros del sistema que quedaran definidos a la hora de llamar las diferentes funciones.
         self.energia_util = 0.0
@@ -183,35 +146,3 @@ class Sistema:
         }
 
 
-"Datos de prueba"
-
-hsp_list = [obj.crear_hsp("Cienfuegos", 1),
-            obj.crear_hsp("Villa Clara", 2),
-            obj.crear_hsp("La Habana", 3)]
-
-panel_list = [obj.crear_panel(1, 1, 1, 1),
-              obj.crear_panel(2, 1, 1, 1),
-              obj.crear_panel(3, 1, 1, 1)]
-
-tecnologia_list = [obj.crear_tecnologia("silicio", 5),
-                   obj.crear_tecnologia("ormigon", 6),
-                   obj.crear_tecnologia("peline", 7)]
-
-jsn.guardar("../salva/Hsp.json", hsp_list)
-jsn.guardar("../salva/Paneles.json", panel_list)
-jsn.guardar("../salva/Tecnologias.json", tecnologia_list)
-
-sistema_list = [Sistema("Sistema Cienfuegos", 1, "silicio", "Cienfuegos"),
-                Sistema("Sistema Villa Clara", 2, "ormigon", "Villa Clara"),
-                Sistema("Sistema La Habana", 3, "peline", "La Habana")]
-
-aux_sistema = []
-
-for i in sistema_list:
-    aux_sistema.append(i.__dict__)
-
-jsn.guardar("../salva/Sistemas.json", aux_sistema)
-
-a = jsn.cargar("../salva/Sistemas.json")
-
-print(a)
