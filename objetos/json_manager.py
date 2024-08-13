@@ -65,6 +65,8 @@ def get_unic_value(file_path, key, value):
     :return: elemento especificado
     """
 
-    #  Comprension de listas
-    return [i for i in load_elements(file_path) if i.get(key) == value]
+    for i in load_elements(file_path):
+        if i.get(key) == value:
+            print(f"Extraido el elemento: {i}")
+            return i
 

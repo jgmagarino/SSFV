@@ -19,7 +19,7 @@ class HomeView(ft.View):
         self.floating_action_button_location = ft.FloatingActionButtonLocation.END_FLOAT
 
         self.scroll = ft.ScrollMode.ADAPTIVE
-        self.bgcolor = ft.colors.GREY_300
+        self.bgcolor = ft.colors.BLUE_200
 
     def on_change(self, e):
 

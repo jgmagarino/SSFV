@@ -4,19 +4,25 @@
 objetivo armacenar la informacion espesifica de un SSFV.
 
 """
-from json_manager import get_unic_value
+from objetos.json_manager import get_unic_value
 
 
 class Sistema:
-    def __init__(self, nombre_sistema: str, panel: int, tecnologia: str, zona: str):
+    def __init__(self, nombre_sistema: str, panel: int, tecnologia: str, zona: str,
+                 descripcion: str = "No hay descripcion", progress: int = 0):
         """
         Al iniciar el sistema, busca el panel, la tecnologia y la zona especificada.
 
+        :param nombre_sistema: Nombre unico para cada sistema.
         :param panel: identificador del tipo de panel a usar.
         :param tecnologia: tecnolgia definida por el material.
         :param zona: zona en la que se hace el sistema, esta define la hsp(hora solar pico).
         """
         self.nombre_sistema = nombre_sistema
+
+        self.descripcion = descripcion
+
+        self.progress = progress
 
         self.panel: dict = get_unic_value("../salva/Paneles.json",
                                           key="identificador",
@@ -38,7 +44,7 @@ class Sistema:
 
     def energia_util_requerida_def(self, potencia):
         """
-        Se calcula a partir de la potencia que se decea en un sistema y la hsp de la zona
+        Se calcula a partir de la potencia que se desea en un sistema y la hsp de la zona
 
         :param potencia: potencia a instalar en el sistema.
         """
@@ -60,7 +66,7 @@ class Sistema:
 
         self.energia_util = potencia * self.zona["valor"]
 
-        return potencia * self.zona["valor"]
+        return self.energia_util
 
     def numero_de_paneles_def(self):
         """
@@ -87,9 +93,9 @@ class Sistema:
             print("Se necesita el numero de paneles para obtener el area requerida")
         else:
             if al_sur:
-                self.area = 1.4 * self.numero_de_paneles * self.tecnologia["area"]
+                self.area = 1.4 * self.numero_de_paneles * self.panel["area"]
             else:
-                self.area = self.numero_de_paneles * self.tecnologia["area"]
+                self.area = self.numero_de_paneles * self.panel["area"]
 
             return self.area
 
@@ -142,7 +148,27 @@ class Sistema:
             "area": self.area,
             "costo": self.costo,
             "ingreso": self.ingreso,
-            "periodo_de_recuperacion": self.periodo_de_recuperacion
+            "periodo_de_recuperacion": self.periodo_de_recuperacion,
+            "descripcion": self.descripcion
         }
 
+
+def dict_to_sistema(sistema: dict):
+    new_sistema = Sistema(
+        nombre_sistema=sistema["nombre_sistema"],
+        panel=sistema["panel"][0]["identificador"],
+        tecnologia=sistema["tecnologia"][0]["material"],
+        zona=sistema["zona"][0]["zona"],
+        descripcion=sistema["descripcion"],
+        progress=sistema["progress"]
+    )
+
+    new_sistema.energia_util = sistema["energia_util"]
+    new_sistema.numero_de_paneles = sistema["numero_de_paneles"]
+    new_sistema.area = sistema["area"]
+    new_sistema.costo = sistema["costo"]
+    new_sistema.ingreso = sistema["ingreso"]
+    new_sistema.periodo_de_recuperacion = sistema["periodo_de_recuperacion"]
+
+    return new_sistema
 
