@@ -1,5 +1,5 @@
 import flet as ft
-from objetos.json_manager import (load_elements)
+from objects.json_manager import (load_elements)
 from components.tables import (get_hsp, get_tecnologias, get_paneles)
 
 

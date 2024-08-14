@@ -1,5 +1,5 @@
 import flet as ft
-from objetos.json_manager import load_elements
+from objects.json_manager import load_elements
 from components.tables import (get_hsp, get_tecnologias, get_paneles)
 from components.home_components import (navigation_drawer)
 
@@ -29,7 +29,7 @@ class HomeView(ft.View):
             self.controls.pop()
 
         if e.control.selected_index == 0:
-            aux = load_elements("salva/Sistemas.json")
+            aux = load_elements("save/Systems.json")
             self.appbar.title = ft.Text("Sistemas")
             if len(aux) != 0:
                 self.controls.append(get_paneles(aux))
@@ -37,7 +37,7 @@ class HomeView(ft.View):
                 self.controls.append(no_elements)
 
         if e.control.selected_index == 1:
-            aux = load_elements("salva/Paneles.json")
+            aux = load_elements("save/Panels.json")
             self.appbar.title = ft.Text("Paneles")
             if len(aux) != 0:
                 self.controls.append(get_paneles(aux))
@@ -45,7 +45,7 @@ class HomeView(ft.View):
                 self.controls.append(no_elements)
 
         if e.control.selected_index == 2:
-            aux = load_elements("salva/Hsp.json")
+            aux = load_elements("save/Hsp.json")
             self.appbar.title = ft.Text("Horas Solares Pico")
             if len(aux) != 0:
                 self.controls.append(get_hsp(aux))
@@ -53,7 +53,7 @@ class HomeView(ft.View):
                 self.controls.append(no_elements)
 
         if e.control.selected_index == 3:
-            aux = load_elements("salva/Tecnologias.json")
+            aux = load_elements("save/Technologies.json")
             self.appbar.title = ft.Text("Tecnologias")
             if len(aux) != 0:
                 self.controls.append(get_tecnologias(aux))

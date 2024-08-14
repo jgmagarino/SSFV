@@ -1,5 +1,5 @@
 import flet as ft
-from objetos.sistema import Sistema
+from objects.system import System
 
 
 def get_description(text: str):
@@ -13,11 +13,11 @@ def get_description(text: str):
     )
 
 
-def get_system_info(system: Sistema, page: ft.Page):
+def get_system_info(system: System, page: ft.Page):
     def data_text(text: str):
         return ft.Container(content=ft.Text(text), bgcolor=ft.colors.GREY_300, border_radius=10, padding=5)
 
-    title = ft.Text(system.nombre_sistema, size=30)
+    title = ft.Text(system.name, size=30)
 
     def change_progress(e):
         if system.progress == 0:
@@ -46,9 +46,9 @@ def get_system_info(system: Sistema, page: ft.Page):
     area = ft.Row([ft.Text(f"Area: "),
                    data_text(f"{system.area} m²")], wrap=True)
     util_energy = ft.Row([ft.Text(f"Energia util: "),
-                          data_text(f"{system.energia_util} Wh/dia")], wrap=True)
+                          data_text(f"{system.useful_energy} Wh/dia")], wrap=True)
     num_panels = ft.Row([ft.Text(f"Numero de paneles: "),
-                         data_text(f"{system.numero_de_paneles}")], wrap=True)
+                         data_text(f"{system.number_of_panels}")], wrap=True)
 
     column_1 = ft.Column([
         area,
@@ -58,11 +58,11 @@ def get_system_info(system: Sistema, page: ft.Page):
 
     title_2 = ft.Text("Calculo economico")
     cost = ft.Row([ft.Text(f"Costo del sistema: "),
-                   data_text(f"{system.costo} cup")], wrap=True)
+                   data_text(f"{system.cost} cup")], wrap=True)
     ingr = ft.Row([ft.Text(f"Ingresos: "),
-                   data_text(f"{system.ingreso} cup")], wrap=True)
+                   data_text(f"{system.income} cup")], wrap=True)
     periodo_recuperacion = ft.Row([ft.Text(f"Periodo de recuperacion: "),
-                                   data_text(f"{system.periodo_de_recuperacion} dias")], wrap=True)
+                                   data_text(f"{system.recovery_period} dias")], wrap=True)
 
     column_2 = ft.Column([
         cost,
