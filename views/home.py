@@ -1,6 +1,5 @@
 import flet as ft
-from components.home_components import (DrawerHome, ActivatorDrawer, AppBarHome,
-                                        ContentSystem, ContentPanels, ContentHsp, ContentTechnologies)
+from components.home_components import (DrawerHome, ActivatorDrawer, AppBarHome, GeneralContent)
 from static_object import StaticPage
 
 
@@ -21,7 +20,7 @@ class HomeView(ft.View):
 
         # Contenido que se mostrara en la pagina
         # Como contenido inicial se mustra los sistemas
-        self.content = ContentSystem()
+        self.content = GeneralContent(0)
 
         # Para mostrar el navigation drawer
         self.floating_action_button = ActivatorDrawer()
@@ -41,19 +40,19 @@ class HomeView(ft.View):
 
         if self.end_drawer.selected_index == 0:
             self.appbar.title = ft.Text("Sistemas", size=30)
-            self.content.content = ContentSystem()
+            self.content.content = GeneralContent(0)
 
         if self.end_drawer.selected_index == 1:
             self.appbar.title = ft.Text("Paneles", size=30)
-            self.content.content = ContentPanels()
+            self.content.content = GeneralContent(1)
 
         if self.end_drawer.selected_index == 2:
             self.appbar.title = ft.Text("Horas solares pico", size=30)
-            self.content.content = ContentHsp()
+            self.content.content = GeneralContent(2)
 
         if self.end_drawer.selected_index == 3:
             self.appbar.title = ft.Text("Tecnologias", size=30)
-            self.content.content = ContentTechnologies()
+            self.content.content = GeneralContent(3)
 
         if self.end_drawer.selected_index == 4:
             self.appbar.title = ft.Text("Ayuda", size=30)

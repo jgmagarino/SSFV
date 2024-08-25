@@ -1,7 +1,6 @@
 import flet as ft
 
-from components.other_components import (PanelInfo, PanelOnSystem, HspInfo, HspOnSystem,
-                                         TechnologyOnSystem, TechnologyInfo)
+from components.other_components import (EntityInfo, WhereUsed)
 from db_gestor import DatabaseConnection
 from objects.hsp import Hsp
 from objects.panel import Panel
@@ -72,100 +71,49 @@ class AppBarHome(ft.AppBar):
 "-----------------------------------"
 
 
-class ContentSystem(ft.Container):
-    """
-    Este objeto contiene la lista de todos los elementos de
-    su entidad en forma de Miniature"entidad".
-    """
-
-    def __init__(self):
+class GeneralContent(ft.Container):
+    def __init__(self, type_entity: int, entity_list: list = None):
         super().__init__()
 
-        # Carga todos los elementos de la BD los convierte en Miniature"entidad"
-        # y los guarda en una lista.
-        systems = [MiniatureSystem(i) for i in DatabaseConnection().get_all_systems()]
+        if type_entity == 0:
+            if  entity_list is None:
+                entity_list = DatabaseConnection().get_all_systems()
 
-        if systems:
-            self.content = ft.Row(controls=systems, wrap=True)
+        if type_entity == 1:
+            if  entity_list is None:
+                entity_list = DatabaseConnection().get_all_panels()
+
+        if type_entity == 2:
+            if  entity_list is None:
+                entity_list = DatabaseConnection().get_all_hsp()
+
+        if type_entity == 3:
+            if  entity_list is None:
+                entity_list = DatabaseConnection().get_all_technologies()
+
+        self.entity_list = [GeneralMiniature(i) for i in entity_list]
+
+        if self.entity_list:
+            self.content = ft.Row(controls=self.entity_list, wrap=True, spacing=50)
         else:
-            self.content = ft.Text("Aun no se han creado sistemas")
+            self.content = ft.Text("Aun no hay elementos de este tipo registrados")
 
 
-class MiniatureSystem(ft.Container):
-    """
-    Este objeto sirve para reprecentar todas las entidades en una lista.
-    dando la posibilidad de ver el identificador de la entidad, ver mas
-    detalles o eliminarlas.
-    """
-
-    def __init__(self, system: System):
-        super().__init__()
-
-        self.system = system
-
-        # Lo que se puede hacer con cada elemento de este tipo
-        # Ver detalles y eliminarlo
-        self.buttons = ft.Row(
-            [
-                ft.ElevatedButton("ver detalles"),
-                ft.FilledButton("eliminar", style=ft.ButtonStyle(bgcolor=ft.colors.RED_400))
-            ],
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
-
-        # Bordes y padding
-        self.border = ft.border.all(0.5, ft.colors.GREY)
-        self.border_radius = 5
-        self.padding = 5
-
-        # Cuerpo de la miniatura
-        self.body = ft.Column([ft.Text(self.system.name), self.buttons],
-                              horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-
-
-class ContentPanels(ft.Container):
-    """
-    Este objeto contiene la lista de todos los elementos de
-    su entidad en forma de Miniature"entidad".
-    """
-
-    def __init__(self, panels: list[Panel] = None):
+class GeneralMiniature(ft.Container):
+    def __init__(self, entity: System | Panel | Hsp | Technology):
         """
-        :param panels: lista de paneles que se quieren mostrar, pueden ser todos o unos especificados.
+        Este objeto reprecenta una entidad con la opcion de eliminarla o ver todos sus detalles
+
+        :param entity: entidad a representar
         """
         super().__init__()
 
-        # Si no entran ningun panel como parametro, se cargan todos
-        if panels is None:
-            panels = DatabaseConnection().get_all_panels()
+        self.entity = entity
 
-        # Convierte los paneles en Miniature"entidad"
-        # y los guarda en una lista.
-        self.panels = [MiniaturePanel(i) for i in panels]
-
-        if panels:
-            self.content = ft.Row(controls=self.panels, wrap=True, spacing=50)
-        else:
-            self.content = ft.Text("No hay paneles registrados")
-
-
-class MiniaturePanel(ft.Container):
-    """
-    Este objeto sirve para reprecentar todas las entidades en una lista.
-    dando la posibilidad de ver el identificador de la entidad, ver mas
-    detalles o eliminarlas.
-    """
-
-    def __init__(self, panel: Panel):
-        super().__init__()
-
-        self.panel = panel
-
-        # def see_details(e):
-        #     StaticPanel().set_panel(self.panel)
-        #     StaticPage().get_page().go('/selected_panel')
-
+        # esta variable indica si se mostraran los detalles de la entidad o no
         self.see = False
 
+        # boton para ver los detalles
         self.details_button = ft.ElevatedButton("ver detalles", on_click=self.see_details)
 
         # Lo que se puede hacer con cada elemento de este tipo
@@ -182,205 +130,63 @@ class MiniaturePanel(ft.Container):
         self.border_radius = 5
         self.padding = 5
 
+        # ancho
         self.width = 300
 
-        # cuerpo de la miniatura
-        self.content = ft.Column([ft.Text(self.panel.id_panel), self.buttons],
-                              horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+        # todo aun falta crear los componentes para mostrar la informacion de los sistemas
+        if isinstance(entity, System):
+            self.text = entity.name
+            self.all_details = [
+                ft.Text(self.text),
+                self.buttons
+            ]
 
-    def see_details(self, e):
-        if self.see:
-            self.content = ft.Column([ft.Text(self.panel.id_panel), self.buttons],
-                                     horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-            self.details_button.text = "ver detalles"
-            self.border = ft.border.all(0.5, ft.colors.GREY)
+        # Panel
+        if isinstance(entity, Panel):
+            self.text = entity.id_panel
 
-        else:
-            self.content = ft.Column(
-            [
-                ft.Text(self.panel.id_panel),
-                PanelInfo(self.panel),
-                PanelOnSystem(self.panel),
-                self.buttons,
-            ],
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-            self.details_button.text = "ocultar"
-            self.border = ft.border.all(3, ft.colors.BLUE_600)
+        # Hora solar pico
+        if isinstance(entity, Hsp):
+            self.text = entity.place
 
-        self.see = not self.see
-        self.update()
+        # Tecnologia
+        if isinstance(entity, Technology):
+            self.text = entity.technology
 
 
-class ContentHsp(ft.Container):
-    """
-    Este objeto contiene la lista de todos los elementos de
-    su entidad en forma de Miniature"entidad".
-    """
-
-    def __init__(self, hsp: list[Hsp] = None):
-        """
-        :param hsp: lista de hsp que se quieren mostrar, pueden ser todos o unos especificados.
-        """
-        super().__init__()
-
-        # Si no entran ningun panel como parametro, se cargan todos
-        if hsp is None:
-            hsp = DatabaseConnection().get_all_hsp()
-
-        # Convierte los paneles en Miniature"entidad"
-        # y los guarda en una lista.
-        self.hsp = [MiniatureHsp(i) for i in hsp]
-
-        if hsp:
-            self.content = ft.Row(controls=self.hsp, wrap=True, spacing=50)
-        else:
-            self.content = ft.Text("No hay lugares registrados")
-
-
-class MiniatureHsp(ft.Container):
-    """
-    Este objeto sirve para reprecentar todas las entidades en una lista.
-    dando la posibilidad de ver el identificador de la entidad, ver mas
-    detalles o eliminarlas.
-    """
-
-    def __init__(self, hsp: Hsp):
-        super().__init__()
-
-        self.hsp = hsp
-
-        # def see_details(e):
-        #     StaticPanel().set_panel(self.panel)
-        #     StaticPage().get_page().go('/selected_panel')
-
-        self.see = False
-
-        self.details_button = ft.ElevatedButton("ver detalles", on_click=self.see_details)
-
-        # Lo que se puede hacer con cada elemento de este tipo
-        # Ver detalles y eliminarlo
-        self.buttons = ft.Row(
-            [
-                self.details_button,
-                ft.FilledButton("eliminar", style=ft.ButtonStyle(bgcolor=ft.colors.RED_400))
-            ],
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
-
-        # Bordes y padding
-        self.border = ft.border.all(0.5, ft.colors.GREY)
-        self.border_radius = 5
-        self.padding = 5
-
-        self.width = 300
+        self.all_details = [
+            ft.Text(self.text),
+            EntityInfo(self.entity),
+            WhereUsed(self.entity),
+            self.buttons
+        ]
 
         # cuerpo de la miniatura
-        self.content = ft.Column([ft.Text(self.hsp.place), self.buttons],
-                              horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-
-    def see_details(self, e):
-        if self.see:
-            self.content = ft.Column([ft.Text(self.hsp.place), self.buttons],
-                                     horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-            self.details_button.text = "ver detalles"
-            self.border = ft.border.all(0.5, ft.colors.GREY)
-
-        else:
-            self.content = ft.Column(
-            [
-                ft.Text(self.hsp.place),
-                HspInfo(self.hsp),
-                HspOnSystem(self.hsp),
-                self.buttons,
-            ],
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-            self.details_button.text = "ocultar"
-            self.border = ft.border.all(3, ft.colors.BLUE_600)
-
-        self.see = not self.see
-        self.update()
-
-
-class ContentTechnologies(ft.Container):
-    """
-    Este objeto contiene la lista de todos los elementos de
-    su entidad en forma de Miniature"entidad".
-    """
-
-    def __init__(self, technologies: list[Technology] = None):
-        """
-        :param technologies: lista de tecnologias que se quieren mostrar, pueden ser todos o unos especificados.
-        """
-        super().__init__()
-
-        # Si no entran ningun panel como parametro, se cargan todos
-        if technologies is None:
-            technologies = DatabaseConnection().get_all_technologies()
-
-        # Convierte los paneles en Miniature"entidad"
-        # y los guarda en una lista.
-        self.technologies = [MiniatureTechnology(i) for i in technologies]
-
-        if technologies:
-            self.content = ft.Row(controls=self.technologies, wrap=True, spacing=50)
-        else:
-            self.content = ft.Text("No hay lugares registrados")
-
-class MiniatureTechnology(ft.Container):
-    """
-    Este objeto sirve para reprecentar todas las entidades en una lista.
-    dando la posibilidad de ver el identificador de la entidad, ver mas
-    detalles o eliminarlas.
-    """
-
-    def __init__(self, technology: Technology):
-        super().__init__()
-
-        self.technology = technology
-
-        # def see_details(e):
-        #     StaticPanel().set_panel(self.panel)
-        #     StaticPage().get_page().go('/selected_panel')
-
-        self.see = False
-
-        self.details_button = ft.ElevatedButton("ver detalles", on_click=self.see_details)
-
-        # Lo que se puede hacer con cada elemento de este tipo
-        # Ver detalles y eliminarlo
-        self.buttons = ft.Row(
-            [
-                self.details_button,
-                ft.FilledButton("eliminar", style=ft.ButtonStyle(bgcolor=ft.colors.RED_400))
-            ],
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
-
-        # Bordes y padding
-        self.border = ft.border.all(0.5, ft.colors.GREY)
-        self.border_radius = 5
-        self.padding = 5
-
-        self.width = 300
-
-        # cuerpo de la miniatura
-        self.content = ft.Column([ft.Text(self.technology.technology), self.buttons],
+        self.content = ft.Column([ft.Text(self.text), self.buttons],
                                  horizontal_alignment=ft.CrossAxisAlignment.CENTER)
 
     def see_details(self, e):
+        """
+        Evento para mostrar mas informacion sobre la entidad
+
+        :param e: ni idea
+        :return:
+        """
+
+        # Ocultar
         if self.see:
-            self.content = ft.Column([ft.Text(self.technology.technology), self.buttons],
+            self.content = ft.Column([ft.Text(self.text), self.buttons],
                                      horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+
             self.details_button.text = "ver detalles"
             self.border = ft.border.all(0.5, ft.colors.GREY)
 
+        # Mostrar
         else:
             self.content = ft.Column(
-            [
-                ft.Text(self.technology.technology),
-                TechnologyInfo(self.technology),
-                TechnologyOnSystem(self.technology),
-                self.buttons,
-            ],
+            controls=self.all_details,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+
             self.details_button.text = "ocultar"
             self.border = ft.border.all(3, ft.colors.BLUE_600)
 

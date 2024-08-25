@@ -1,3 +1,6 @@
+from platform import system
+from xml.dom.minidom import Entity
+
 import flet as ft
 
 from db_gestor import DatabaseConnection
@@ -15,127 +18,72 @@ def info_container(info: str, value):
     ])
 
 
-class PanelInfo(ft.Container):
-    def __init__(self, panel: Panel):
+class EntityInfo(ft.Container):
+    def __init__(self, entity: Panel | Hsp | Technology):
         super().__init__()
 
-        self.panel: Panel = panel
+        if isinstance(entity, Panel):
+            self.entity: Panel = entity
+
+            peak_power = info_container("potencia pico", self.entity.peak_power)
+            cell_material = info_container("material de las celdas", self.entity.cell_material)
+            area = info_container("area", self.entity.area)
+            price = info_container("precio", self.entity.price)
+            price_kwh_sen = info_container("precio del kwh SEN", self.entity.price_kwh_sen)
+
+            self.info = [peak_power, cell_material, area, price, price_kwh_sen]
+
+        if isinstance(entity, Hsp):
+            self.entity: Hsp = entity
+
+            place = info_container("lugar", self.entity.place)
+            value = info_container("valor", self.entity.value)
+
+            self.info = [place, value]
+
+        if isinstance(entity, Technology):
+            self.entity: Technology = entity
+
+            peak_power = info_container("tecnologia", self.entity.technology)
+            cell_material = info_container("area requerida", self.entity.surface)
+
+            self.info = [peak_power, cell_material]
 
         # bordes y padding
         self.border = ft.border.all(1, ft.colors.GREY)
         self.border_radius = 5
         self.padding = 10
 
-        # informacion
-        peak_power = info_container("potencia pico", self.panel.peak_power)
-        cell_material = info_container("material de las celdas", self.panel.cell_material)
-        area = info_container("area", self.panel.area)
-        price = info_container("precio", self.panel.price)
-        price_kwh_sen = info_container("precio del kwh SEN", self.panel.price_kwh_sen)
-
-        self.content = ft.Row([
-            peak_power,
-            cell_material,
-            area,
-            price,
-            price_kwh_sen
-        ],wrap=True)
+        self.content = ft.Row(self.info, wrap=True)
 
 
-class PanelOnSystem(ft.Container):
-    def __init__(self, panel):
+class WhereUsed(ft.Container):
+    def __init__(self, entity: Panel | Hsp | Technology):
         super().__init__()
 
-        self.panel: Panel = panel
+        systems = []
+
+        if isinstance(entity, Panel):
+            self.entity: Panel = entity
+
+            systems = DatabaseConnection().find_panel(self.entity.id_panel)
+
+        if isinstance(entity, Hsp):
+            self.entity: Hsp = entity
+
+            systems = DatabaseConnection().find_hsp(self.entity.place)
+
+        if isinstance(entity, Technology):
+            self.entity: Technology = entity
+
+            systems = DatabaseConnection().find_technology(self.entity.technology)
 
         # bordes y padding
         self.border = ft.border.all(1, ft.colors.GREY)
         self.border_radius = 5
         self.padding = 10
-
-        systems = DatabaseConnection().find_panel(self.panel.id_panel)
 
         if systems:
             pass
         else:
-            self.content = ft.Text("No hay sistemas que usen este tipo panel")
-
-
-class HspInfo(ft.Container):
-    def __init__(self, hsp: Hsp):
-        super().__init__()
-
-        self.hsp: Hsp = hsp
-
-        # bordes y padding
-        self.border = ft.border.all(1, ft.colors.GREY)
-        self.border_radius = 5
-        self.padding = 10
-
-        # informacion
-        peak_power = info_container("lugar", self.hsp.place)
-        cell_material = info_container("valor", self.hsp.value)
-
-        self.content = ft.Row([
-            peak_power,
-            cell_material,
-        ],wrap=True)
-
-
-class HspOnSystem(ft.Container):
-    def __init__(self, hsp: Hsp):
-        super().__init__()
-
-        self.hsp: Hsp = hsp
-
-        # bordes y padding
-        self.border = ft.border.all(1, ft.colors.GREY)
-        self.border_radius = 5
-        self.padding = 10
-
-        systems = DatabaseConnection().find_hsp(self.hsp.place)
-
-        if systems:
-            pass
-        else:
-            self.content = ft.Text("No hay sistemas en este lugar especifico")
-
-
-class TechnologyInfo(ft.Container):
-    def __init__(self, technology: Technology):
-        super().__init__()
-
-        self.technology: Technology = technology
-
-        # bordes y padding
-        self.border = ft.border.all(1, ft.colors.GREY)
-        self.border_radius = 5
-        self.padding = 10
-
-        # informacion
-        peak_power = info_container("tecnologia", self.technology.technology)
-        cell_material = info_container("area requerida", self.technology.surface)
-
-        self.content = ft.Row([
-            peak_power,
-            cell_material,
-        ],wrap=True)
-
-
-class TechnologyOnSystem(ft.Container):
-    def __init__(self, technology: Technology):
-        super().__init__()
-
-        self.technology: Technology = technology
-
-        # bordes y padding
-        self.border = ft.border.all(1, ft.colors.GREY)
-        self.border_radius = 5
-        self.padding = 10
-
-        systems = DatabaseConnection().find_technology(self.technology.technology)
-
-        if systems:
-            pass
-        else:
-            self.content = ft.Text("No hay sistemas en este lugar especifico")
+            self.content = ft.Text("No se usa en ningun sistema.")

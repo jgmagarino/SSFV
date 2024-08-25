@@ -2,7 +2,6 @@ import flet as ft
 
 from objects.panel import Panel
 from static_object import StaticPanel
-from components.other_components import (PanelInfo, PanelOnSystem)
 
 
 class PanelView(ft.View):
@@ -18,7 +17,3 @@ class PanelView(ft.View):
             title=ft.Text(self.panel.id_panel, size=20),
             leading=ft.IconButton(ft.icons.ARROW_LEFT, on_click=lambda e: self.page.go('/'))
         )
-
-        self.controls.append(PanelInfo())
-        self.controls.append(PanelOnSystem())
-
