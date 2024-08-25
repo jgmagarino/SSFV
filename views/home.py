@@ -1,64 +1,67 @@
 import flet as ft
-from objects.json_manager import load_elements
-from components.tables import (get_hsp, get_tecnologias, get_paneles)
-from components.home_components import (navigation_drawer)
+from components.home_components import (DrawerHome, ActivatorDrawer, AppBarHome,
+                                        ContentSystem, ContentPanels, ContentHsp, ContentTechnologies)
+from static_object import StaticPage
 
 
 class HomeView(ft.View):
-    def __init__(self, page: ft.Page):
+    def __init__(self):
         super().__init__()
-        self.drawer = navigation_drawer()
-        self.drawer.on_change = self.on_change
+        self.route = '/'
 
-        self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+        self.page = StaticPage().get_page()
 
-        self.appbar = ft.AppBar(automatically_imply_leading=False, title=ft.Text("Sistemas"))
+        # Navegacion
+        self.end_drawer = DrawerHome()
+        self.end_drawer.on_change = self.on_drawer_change
 
-        self.floating_action_button = ft.FloatingActionButton(icon=ft.icons.MENU,
-                                                              on_click=lambda e: page.open(self.drawer))
-        self.floating_action_button_location = ft.FloatingActionButtonLocation.END_FLOAT
+        # Hasta ahora unicamente para mostrar como titulo la opcion seleccionada
+        # en el drawer.
+        self.appbar = AppBarHome()
 
+        # Contenido que se mostrara en la pagina
+        # Como contenido inicial se mustra los sistemas
+        self.content = ContentSystem()
+
+        # Para mostrar el navigation drawer
+        self.floating_action_button = ActivatorDrawer()
+        self.floating_action_button.on_click = lambda e: self.page.open(self.end_drawer)
+
+        # Scroll en toda la pagina
         self.scroll = ft.ScrollMode.ADAPTIVE
-        self.bgcolor = ft.colors.BLUE_200
+        self.auto_scroll = True
 
-    def on_change(self, e):
+        self.controls.append(self.content)
 
-        no_elements = ft.Text("No hay elementos de este tipo...")
+    def on_drawer_change(self, e):
+        """
+        En este metodo se ira cambiando el contenido que se mustra en dependencia
+        de la opcion seleccionada en en navigation drawer.
+        """
 
-        if len(self.controls) != 0:
-            self.controls.pop()
+        if self.end_drawer.selected_index == 0:
+            self.appbar.title = ft.Text("Sistemas", size=30)
+            self.content.content = ContentSystem()
 
-        if e.control.selected_index == 0:
-            aux = load_elements("save/Systems.json")
-            self.appbar.title = ft.Text("Sistemas")
-            if len(aux) != 0:
-                self.controls.append(get_paneles(aux))
-            else:
-                self.controls.append(no_elements)
+        if self.end_drawer.selected_index == 1:
+            self.appbar.title = ft.Text("Paneles", size=30)
+            self.content.content = ContentPanels()
 
-        if e.control.selected_index == 1:
-            aux = load_elements("save/Panels.json")
-            self.appbar.title = ft.Text("Paneles")
-            if len(aux) != 0:
-                self.controls.append(get_paneles(aux))
-            else:
-                self.controls.append(no_elements)
+        if self.end_drawer.selected_index == 2:
+            self.appbar.title = ft.Text("Horas solares pico", size=30)
+            self.content.content = ContentHsp()
 
-        if e.control.selected_index == 2:
-            aux = load_elements("save/Hsp.json")
-            self.appbar.title = ft.Text("Horas Solares Pico")
-            if len(aux) != 0:
-                self.controls.append(get_hsp(aux))
-            else:
-                self.controls.append(no_elements)
+        if self.end_drawer.selected_index == 3:
+            self.appbar.title = ft.Text("Tecnologias", size=30)
+            self.content.content = ContentTechnologies()
 
-        if e.control.selected_index == 3:
-            aux = load_elements("save/Technologies.json")
-            self.appbar.title = ft.Text("Tecnologias")
-            if len(aux) != 0:
-                self.controls.append(get_tecnologias(aux))
-            else:
-                self.controls.append(no_elements)
+        if self.end_drawer.selected_index == 4:
+            self.appbar.title = ft.Text("Ayuda", size=30)
+            self.content.content = ft.Text("Aun nada")
 
-        self.drawer.open = False
+        if self.end_drawer.selected_index == 5:
+            self.appbar.title = ft.Text("Configuracion", size=30)
+            self.content.content = ft.Text("Aun nada")
+
+        self.page.close(self.end_drawer)
         self.update()
