@@ -1,8 +1,12 @@
 import flet as ft
 
 from static_object import StaticPage
+from views.create_hsp import CreateHsp
+from views.create_system import CreateSystem
 from views.home import HomeView
-from views.panel_view import PanelView
+from views.create_panel import CreatePanel
+from views.create_technology import CreateTechnology
+from views.last_instance import HomeInstance
 
 
 def main(page: ft.Page):
@@ -17,18 +21,29 @@ def main(page: ft.Page):
     def route_change(route):
         page.views.clear()
         page.views.append(
-            HomeView()
+            HomeInstance().get_home()
         )
 
-        if page.route == "/selected_panel":
+        if page.route == "/create_system":
             page.views.append(
-                PanelView()
+                CreateSystem()
             )
 
-        # if page.route == "/register":
-        #     page.views.append(
-        #         RegisterView(page)
-        #     )
+        if page.route == "/create_panel":
+            page.views.append(
+                CreatePanel()
+            )
+
+        if page.route == "/create_hsp":
+            page.views.append(
+                CreateHsp()
+            )
+
+        if page.route == "/create_technology":
+            page.views.append(
+                CreateTechnology()
+            )
+
         page.update()
 
     def view_pop(view):
