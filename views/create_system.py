@@ -1,7 +1,7 @@
 import flet as ft
 from components.create_system_components import (SelectPlace, SelectPanel, SpecificData, CalcWithArea,
                                                  CalcWithPeakPower, Economic, FinalFace)
-
+from style import (appbar, error_text, frame)
 
 class CreateSystem(ft.View):
     def __init__(self):
@@ -11,12 +11,7 @@ class CreateSystem(ft.View):
         self.vertical_alignment = ft.MainAxisAlignment.CENTER
         self.bgcolor = ft.colors.GREY_300
 
-        self.appbar = ft.AppBar(title=ft.Text("Crear un sistema"),
-                                bgcolor=ft.colors.BLUE_400,
-                                automatically_imply_leading=False)
-
-        self.progress = 0
-
+        self.appbar = appbar("Crear un sistema")
 
         self.button_back = ft.ElevatedButton("Atras", on_click=self.back)
         self.button_continue = ft.ElevatedButton("Calcular", on_click=self.create_system,
@@ -26,19 +21,16 @@ class CreateSystem(ft.View):
         self.selected_panel = SelectPanel()
         self.exact_calc = SpecificData()
 
-        self.error_message = ft.Text("", color=ft.colors.RED, size=20, visible=False)
+        self.alert = error_text("Error")
 
-        self.content = ft.Container(
+        self.content = frame(
             content=ft.Column([
                 ft.Column([self.selected_place, self.selected_panel, self.exact_calc,
                 ft.Divider(height=1),
-                self.error_message,
+                self.alert,
                 ft.Row([self.button_back, self.button_continue], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)]),
             ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-            alignment=ft.alignment.center,
-            bgcolor=ft.colors.WHITE,
-            border_radius=5,
-            padding=10,
+
         )
 
         self.face = 0
@@ -48,15 +40,14 @@ class CreateSystem(ft.View):
 
         self.controls.append(self.content)
 
-
     def validation(self, e):
 
         if self.selected_panel.get_selected_panel() is None:
             self.selected_panel.set_error()
-            self.error_message.visible = True
-            self.error_message.value = "Tiene que seleccionar un panel para continuar"
+            self.alert.visible = True
+            self.alert.value = "Tiene que seleccionar un panel para continuar"
         else:
-            self.error_message.visible = False
+            self.alert.visible = False
             self.selected_panel.set_normal()
 
         self.update()
@@ -69,7 +60,7 @@ class CreateSystem(ft.View):
             self.content.content = ft.Column([
                 ft.Column([self.selected_place, self.selected_panel, self.exact_calc,
                 ft.Divider(height=1),
-                self.error_message,
+                self.alert,
                 ft.Row([self.button_back, self.button_continue], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)]),
             ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
 

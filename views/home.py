@@ -1,6 +1,5 @@
 import flet as ft
 from components.home_components import (DrawerHome, ActivatorDrawer, AppBarHome, GeneralContent)
-from static_object import StaticPage
 
 
 class HomeView(ft.View):
@@ -15,7 +14,8 @@ class HomeView(ft.View):
         # Hasta ahora unicamente para mostrar como titulo la opcion seleccionada
         # en el drawer.
         self.appbar = AppBarHome()
-        self.add_button = ft.IconButton(ft.icons.ADD, tooltip="Añadir", icon_size=40)
+        self.add_button = ft.IconButton(ft.icons.ADD, tooltip="Añadir",
+                                        icon_size=40, on_click=lambda e: self.page.go('/create_system'))
         self.appbar.actions.append(self.add_button)
 
         # Contenido que se mostrara en la pagina

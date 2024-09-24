@@ -173,8 +173,11 @@ class GeneralContent(ft.Container):
 
         self.content = ft.Row(controls=[self.see_options, ft.Divider(height=1)] + self.miniature_list,
                               wrap=True, spacing=50, alignment=ft.MainAxisAlignment.CENTER)
-        self.update()
 
+        self.all_button.update()
+        self.used_button.update()
+        self.not_used_button.update()
+        self.update()
 
 class GeneralMiniature(ft.Container):
     def __init__(self, entity: System | Panel | Hsp | Technology):

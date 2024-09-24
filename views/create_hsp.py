@@ -1,134 +1,121 @@
 import flet as ft
 import objects.db_querys as db
+
 from objects.hsp import Hsp
-import re
-
-
-def only_real_numbs(e):
-    """
-    Mediante expreciones regulares compruebo que solo se escriba un numero real.
-    """
-
-    value: str = e.control.value
-
-    if len(value) > 0:
-        if value[len(value) - 1] != '.':
-            if not re.match( r'^\d+(\.\d+)?$', value):
-                e.control.value = value[:-1]
-        else:
-            if re.match(r'^\d+(\.(\d+)?)\.$', value):
-                e.control.value = value[:-1]
-
-    e.control.update()
+from validation import only_real_numbs
+from style import (text_filed, error_text, frame, unit_of_measurement, appbar)
 
 
 class CreateHsp(ft.View):
     def __init__(self):
         super().__init__()
 
+        "-----------"
+        "PROPIEDADES"
+        "-----------"
+
         self.route = '/create_hsp'
+        self.vertical_alignment = ft.MainAxisAlignment.CENTER
+        self.bgcolor = ft.colors.GREY_300
 
-        self.appbar = ft.AppBar(title=ft.Text("Insertar una nueva hora solar pico"),
-                                bgcolor=ft.colors.BLUE_400, toolbar_height=100,
-                                automatically_imply_leading=False)
+        "-----------"
+        "COMPONENTES"
+        "-----------"
 
-        self.place_txt = ft.TextField(
-            label="Lugar",
-            border_color=ft.colors.BLUE_400,
-            label_style=ft.TextStyle(color=ft.colors.BLUE_900),
-            focused_border_width=3
-        )
+        self.appbar = appbar("Nueva hora solar pico")
 
-        self.place = ft.Column([self.place_txt,
+        self.place_tf = text_filed("Lugar", 300)
+
+        self.place = ft.Column([self.place_tf,
                                 ft.Text("Region en la que se tiene registrado "
                                            "una hora solar pico",
                                            color=ft.colors.GREY_500)
                                 ], spacing=0.1)
 
 
-        self.value_txt = ft.TextField(
-            label="valor", border_color=ft.colors.BLUE_400,
-            label_style=ft.TextStyle(color=ft.colors.BLUE_900),
-            focused_border_width=3, width=100,
-            on_change=only_real_numbs
-        )
-
-        self.value = ft.Row([self.value_txt,
-                             ft.Container(content=ft.Text("h/día"), border_radius=10,
-                                               border=ft.border.all(1, ft.colors.GREY), padding=5)])
-
+        self.value_tf = text_filed("Valor")
+        self.value_tf.on_change=only_real_numbs
 
         self.create = ft.ElevatedButton("Crear", bgcolor=ft.colors.BLUE_400, color=ft.colors.WHITE,
                                         on_click=self.insert)
-        self.cancelate = ft.ElevatedButton("Cancelar", on_click=lambda e: self.page.go('/'))
 
-        self.vertical_alignment = ft.MainAxisAlignment.CENTER
+        self.cancelate = ft.ElevatedButton("Cancelar", on_click=lambda e: self.page.go('back'))
 
-        self.bgcolor = ft.colors.GREY
+        self.alert = error_text("No puede haber ningun campo vacio.")
 
-        self.alert_txt = ft.Text("No puede haber ningun campo vacio", color=ft.colors.RED, size=20, visible=False)
+        "----------"
+        "ESTRUCTURA"
+        "----------"
 
         self.controls.append(
-
-            ft.Container(
-                content=ft.Row([
-                    self.place,
-                    self.value,
-                    ft.Divider(height=1),
-                    self.alert_txt,
-                    ft.Row([self.create, self.cancelate], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+           frame(
+                content=ft.Row(
+                    [
+                        self.place,
+                        ft.Row([self.value_tf, unit_of_measurement("h/dia")]),
+                        ft.Divider(height=1),
+                        self.alert,
+                        ft.Row([self.create, self.cancelate],
+                               alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
                     ], wrap=True
                 ),
-                border_radius=5,
-                padding=10,
-                bgcolor=ft.colors.WHITE
             )
 
         )
 
+    "------"
+    "EVENTO"
+    "------"
+
     def insert(self, e):
+        """
+        Evento, inserta una nueva hora solar pico si la validacion es correcta y no hay error
+        a la hora de insertar en la base de datos, en caso contrario muestra una alerta inducando
+        el error.
+        """
         is_correct, new_hsp = self.validation_empty_filed()
 
         if is_correct:
             err = db.insert_hsp(new_hsp)
 
             if err is None:
-                self.page.go('/')
+                self.page.go('back')
             else:
-                self.alert_txt.value = err
-                self.alert_txt.visible = True
+                self.alert.value = err
+                self.alert.visible = True
                 self.update()
 
         else:
-            self.alert_txt.value = new_hsp
-            self.alert_txt.visible = True
+            self.alert.value = new_hsp
+            self.alert.visible = True
             self.update()
 
 
     def validation_empty_filed(self) -> (bool, Hsp | str):
-        place: str = self.place_txt.value
-        value: str = self.value_txt.value
+        """
+        Se asegura de que los text filed no esten vacios
+        :return : una tupla (verdadero y la nueva hsp o falso y mensaje de error si hay algun campo vacio)
+        """
+        place: str = self.place_tf.value
+        value: str = self.value_tf.value
 
         if len(place) == 0:
-            self.place_txt.label_style = ft.TextStyle(color=ft.colors.RED_900)
-            self.place_txt.border_color = ft.colors.RED
+            self.place_tf.label_style = ft.TextStyle(color=ft.colors.RED_900)
+            self.place_tf.border_color = ft.colors.RED
             return False, "Debe definir que lugar es"
         else:
-            self.place_txt.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
-            self.place_txt.border_color = ft.colors.BLUE_400
+            self.place_tf.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
+            self.place_tf.border_color = ft.colors.BLUE_400
 
         if len(value) == 0:
-            self.value_txt.label_style = ft.TextStyle(color=ft.colors.RED_900)
-            self.value_txt.border_color = ft.colors.RED
+            self.value_tf.label_style = ft.TextStyle(color=ft.colors.RED_900)
+            self.value_tf.border_color = ft.colors.RED
             return False, "Que valor tiene?"
         else:
-            self.value_txt.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
-            self.value_txt.border_color = ft.colors.BLUE_400
+            self.value_tf.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
+            self.value_tf.border_color = ft.colors.BLUE_400
 
-        return True, Hsp(
-            place=place,
-            value=float(value),
-        )
+        return True, Hsp(place=place, value=float(value))
 
 
 

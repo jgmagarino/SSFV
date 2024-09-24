@@ -1,31 +1,10 @@
 import flet as ft
 import objects.db_querys as db
-import re
 
 from objects.panel import Panel
+from validation import only_real_numbs
+from style import (dropdown, text_and_bg)
 
-
-def only_real_numbs(e):
-    """
-    Mediante expreciones regulares compruebo que solo se escriba un numero real.
-    """
-
-    value: str = e.control.value
-
-    if len(value) > 0:
-        if value[len(value) - 1] != '.':
-            if not re.match( r'^\d+(\.\d+)?$', value):
-                e.control.value = value[:-1]
-        else:
-            if re.match(r'^\d+(\.(\d+)?)\.$', value):
-                e.control.value = value[:-1]
-
-    e.control.update()
-
-
-def get_container():
-    return ft.Container(content=ft.Text(""), bgcolor=ft.colors.BLUE_100,
-                        padding=5, border_radius=5)
 
 class SelectPanel(ft.Column):
     def __init__(self):
@@ -35,57 +14,59 @@ class SelectPanel(ft.Column):
         """
         super().__init__()
 
-        self.all_panels = ft.Dropdown(
-            label="Que panel se usara?",
-            width=300,
-            bgcolor=ft.colors.WHITE,
-            label_style=ft.TextStyle(color=ft.colors.BLUE_800),
-            border_color=ft.colors.BLUE,
-            options=[ft.dropdown.Option(i.id_panel) for i in db.get_all_panels()],
-            on_change=self.get_details
-        )
+        "-----------"
+        "PROPIEDADES"
+        "-----------"
 
-        self.peak_power = get_container()
-        self.cell_material = get_container()
-        self.area = get_container()
-        self.price = get_container()
-        self.price_kwh_sen = get_container()
+        self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
-        self.details = ft.Container(content=ft.Column([
-            ft.Row([ft.Text("Potencia pico:"), self.peak_power]),
-            ft.Row([ft.Text("Material de las celdas:"), self.cell_material]),
-            ft.Row([ft.Text("Area:"), self.area]),
-            ft.Row([ft.Text("Precio:"), self.price]),
-            ft.Row([ft.Text("Precio del kwh SEN:"), self.price_kwh_sen]),
-        ],), visible=False, padding=5, border_radius=5, border=ft.border.all(1, ft.colors.GREY))
+        "-----------"
+        "COMPONENTES"
+        "-----------"
+
+        self.all_panels = dropdown("Que panel se usara?",
+                                   [ft.dropdown.Option(i.id_panel) for i in db.get_all_panels()])
+        self.all_panels.on_change = self.get_details
+
+        self.details = ft.Container(visible=False, padding=5, border_radius=5,
+                                    border=ft.border.all(1, ft.colors.GREY))
+
+        "----------"
+        "ESTRUCTURA"
+        "----------"
 
         self.controls = [
             self.all_panels,
             ft.TextButton("Ver detalles del panel", disabled=True, on_click=self.details_event),
-            self.details,
+            ft.Row([self.details], scroll=ft.ScrollMode.ADAPTIVE),
             ft.TextButton("Crear uno nuevo", on_click=lambda e: e.page.go("/create_panel")),
             ft.Divider(height=1)
         ]
 
-        self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    "-------"
+    "EVENTOS"
+    "-------"
 
     def details_event(self, e):
         self.details.visible = not self.details.visible
 
         if self.details.visible:
-            e.text = "Ocultar detalles"
+            self.controls[1].text = "Ocultar detalles"
         else:
-            e.text = "Ver detalles del panel"
+            self.controls[1].text = "Ver detalles del panel"
 
         self.update()
 
     def get_details(self, e):
         panel = db.get_panel(self.all_panels.value)
-        self.peak_power.content.value = f"{panel.peak_power} Wp"
-        self.cell_material.content.value = f"{panel.cell_material}"
-        self.area.content.value = f"{panel.area} m²"
-        self.price.content.value = f"{panel.price} cup"
-        self.price_kwh_sen.content.value = f"{panel.price_kwh_sen} cup"
+
+        self.details.content=ft.Column([
+            ft.Row([ft.Text("Potencia pico:"), text_and_bg(f"{panel.peak_power} Wp")]),
+            ft.Row([ft.Text("Material de las celdas:"), text_and_bg(f"{panel.cell_material}")]),
+            ft.Row([ft.Text("Area:"), text_and_bg(f"{panel.area} m²")]),
+            ft.Row([ft.Text("Precio:"), text_and_bg(f"{panel.price} cup")]),
+            ft.Row([ft.Text("Precio del kwh SEN:"), text_and_bg(f"{panel.price_kwh_sen} cup")]),
+        ])
 
         self.controls[1].disabled = False
 
@@ -111,24 +92,18 @@ class SelectPlace(ft.Column):
         """
         super().__init__()
 
-        self.all_places = ft.Dropdown(
-            label="Lugar donde se cosntruira",
-            width=300,
-            bgcolor=ft.colors.WHITE,
-            on_change=lambda e: self.on_change_dropdown(),
-            label_style = ft.TextStyle(color=ft.colors.BLUE_800),
-            border_color = ft.colors.BLUE,
-            options=[ft.dropdown.Option(i.place) for i in db.get_all_hsp()]
-        )
+        self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+
+        self.all_places = dropdown("Lugar donde se cosntruira",
+                                   [ft.dropdown.Option(i.place) for i in db.get_all_hsp()])
+
+        self.all_places.on_change = self.on_change_dropdown
 
         self.text = ft.Text("Valor de la hora solar pico : ")
 
-        self.value_hsp = ft.Container(content=ft.Text("5.2 h/dia"),
-                                      bgcolor=ft.colors.BLUE_100, padding=5, border_radius=5, width=90)
+        self.value_hsp = text_and_bg("5.2 h/dia")
 
         self.crear_button = ft.TextButton("Registrar uno nuevo", on_click=lambda e: self.page.go("/create_hsp"))
-
-        self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
         self.controls = [
             self.all_places,
@@ -137,22 +112,14 @@ class SelectPlace(ft.Column):
             ft.Divider(height=1)]
 
 
-    def on_change_dropdown(self):
-        self.value_hsp.content.value = f"{db.get_hsp(self.all_places.value).value} h/día"
+    def on_change_dropdown(self, e):
+        self.value_hsp.content.value = f"{db.get_hsp(self.all_places.value).value} h/dia"
         self.update()
 
     def get_hsp(self):
         if self.all_places.value is None:
             return 5.2
         return db.get_hsp(self.all_places.value).value
-
-    def set_error(self):
-        self.all_places.label_style = ft.TextStyle(color=ft.colors.RED)
-        self.all_places.border_color = ft.colors.RED
-
-    def set_normal(self):
-        self.all_places.label_style = ft.TextStyle(color=ft.colors.BLUE_800)
-        self.all_places.border_color = ft.colors.BLUE
 
 
 class SpecificData(ft.Column):
