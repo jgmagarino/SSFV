@@ -1,6 +1,5 @@
 import flet as ft
-import objects.db_querys as db
-from objects.technology import Technology
+from src.modules.technology_module import Technology
 from style import (appbar, text_filed, unit_of_measurement, error_text, frame)
 
 
@@ -77,15 +76,10 @@ class CreateTechnology(ft.View):
         """
         is_correct, new_technology = self.validation_empty_filed()
 
-        if is_correct:
-            err = db.insert_technology(new_technology)
+        if is_correct and isinstance(new_technology, Technology):
 
-            if err is None:
-                self.page.go('/')
-            else:
-                self.alert.value =err
-                self.alert.visible = True
-                self.update()
+            new_technology.save()
+            self.page.go('/')
 
         else:
             self.alert.value = new_technology

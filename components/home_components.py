@@ -1,12 +1,14 @@
 import flet as ft
-from select import select
 
 from components.other_components import (EntityInfo, WhereUsed)
-import objects.db_querys as db
-from objects.hsp import Hsp
-from objects.panel import Panel
-from objects.system import System
-from objects.technology import Technology
+from src.Mappers.system_mapper import get_all_systems
+from src.modules.system_module import System
+from src.modules.technology_module import Technology
+from src.modules.panel_module import Panel
+from src.modules.hsp_module import HSP
+from src.Mappers.hsp_mapper import (get_all_hps)
+from src.Mappers.panel_mapper import (get_all_panels)
+from src.Mappers.technology_mapper import (get_all_technologies)
 
 
 class DrawerHome(ft.NavigationDrawer):
@@ -114,39 +116,41 @@ class GeneralContent(ft.Container):
 
         if get == "all":
             if self.type_entity == 0:
-                self.miniature_list = [GeneralMiniature(i) for i in db.get_all_systems()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_systems()]
 
             if self.type_entity == 1:
-                self.miniature_list = [GeneralMiniature(i) for i in db.get_all_panels()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_panels()]
 
             if self.type_entity == 2:
-                self.miniature_list = [GeneralMiniature(i) for i in db.get_all_hsp()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_hps()]
 
             if self.type_entity == 3:
-                self.miniature_list = [GeneralMiniature(i) for i in db.get_all_technologies()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_technologies()]
 
         if get == "used":
+            # todo Cambiar para que solo muestre los que estan usados
             if self.type_entity == 1:
-                self.miniature_list = [GeneralMiniature(i) for i in db.used_panels()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_panels()]
 
             if self.type_entity == 2:
-                self.miniature_list = [GeneralMiniature(i) for i in db.used_hsp()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_hps()]
 
             if self.type_entity == 3:
-                self.miniature_list = [GeneralMiniature(i) for i in db.used_technologies()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_technologies()]
 
             if not self.miniature_list:
                 self.miniature_list = [ft.Text("No se a usado aun ningun elemento en algun sistema")]
 
         if get == "not":
+            # todo Cambiar para que solo muestre los que no estan usados
             if self.type_entity == 1:
-                self.miniature_list = [GeneralMiniature(i) for i in db.used_panels(True)]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_panels()]
 
             if self.type_entity == 2:
-                self.miniature_list = [GeneralMiniature(i) for i in db.used_hsp(True)]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_hps()]
 
             if self.type_entity == 3:
-                self.miniature_list = [GeneralMiniature(i) for i in db.used_technologies(True)]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_technologies()]
 
             if not self.miniature_list:
                 self.miniature_list = [ft.Text("Todos los elementos se usan en almenos un sistema")]
@@ -180,7 +184,7 @@ class GeneralContent(ft.Container):
         self.update()
 
 class GeneralMiniature(ft.Container):
-    def __init__(self, entity: System | Panel | Hsp | Technology):
+    def __init__(self, entity: System | Panel | HSP | Technology):
         """
         Este objeto reprecenta una entidad con la opcion de eliminarla o ver todos sus detalles
 
@@ -227,10 +231,10 @@ class GeneralMiniature(ft.Container):
 
         # Panel
         if isinstance(entity, Panel):
-            self.text = entity.id_panel
+            self.text = entity.panel_id
 
         # Hora solar pico
-        if isinstance(entity, Hsp):
+        if isinstance(entity, HSP):
             self.text = entity.place
 
         # Tecnologia
@@ -279,17 +283,7 @@ class GeneralMiniature(ft.Container):
 
 
     def delete(self, e):
-        # Panel
-        if isinstance(self.entity, Panel):
-            db.delete_panel(self.entity.id_panel)
 
-        # Hora solar pico
-        if isinstance(self.entity, Hsp):
-            db.delete_hsp(self.entity.place)
-
-        # Tecnologia
-        if isinstance(self.entity, Technology):
-            db.delete_technology(self.entity.technology)
-
+        self.entity.delete()
         self.visible = False
         self.update()

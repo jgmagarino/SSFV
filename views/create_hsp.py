@@ -1,9 +1,8 @@
 import flet as ft
-import objects.db_querys as db
 
-from objects.hsp import Hsp
 from validation import only_real_numbs
 from style import (text_filed, error_text, frame, unit_of_measurement, appbar)
+from src.modules.hsp_module import HSP
 
 
 class CreateHsp(ft.View):
@@ -76,22 +75,20 @@ class CreateHsp(ft.View):
         is_correct, new_hsp = self.validation_empty_filed()
 
         if is_correct:
-            err = db.insert_hsp(new_hsp)
-
-            if err is None:
-                self.page.go('back')
-            else:
-                self.alert.value = err
-                self.alert.visible = True
-                self.update()
+            
+            self.page.go('back')
 
         else:
-            self.alert.value = new_hsp
+            self.alert.value = "Error"
             self.alert.visible = True
             self.update()
 
+        self.alert.value = new_hsp
+        self.alert.visible = True
+        self.update()
 
-    def validation_empty_filed(self) -> (bool, Hsp | str):
+
+    def validation_empty_filed(self) -> (bool, HSP | str):
         """
         Se asegura de que los text filed no esten vacios
         :return : una tupla (verdadero y la nueva hsp o falso y mensaje de error si hay algun campo vacio)
@@ -115,7 +112,7 @@ class CreateHsp(ft.View):
             self.value_tf.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
             self.value_tf.border_color = ft.colors.BLUE_400
 
-        return True, Hsp(place=place, value=float(value))
+        return True, HSP(place=place, value=float(value))
 
 
 

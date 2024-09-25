@@ -1,0 +1,6 @@
+-Recuerda que en la base de datos las entidades se nombran con mayusculas y minusculas.
+-Comentarios a las cosas, ya que tengo que usar las funciones necesito saber que hacen.
+-En hsp_mapper.py, en el metodo get_hsp(), debes confirmar primero que el lugar que busacan exista, antes de
+retornarlo. En caso de no existir devolver un error o algo que indique lo susedido.
+-Creo que la funcion exist d elos metodos sera mejor pasarla para los mapper como funcion a parte
+y que se le pase como parametro la llave primaria del componenete que se quiere comoprobar que existe.

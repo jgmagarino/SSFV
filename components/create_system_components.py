@@ -1,7 +1,9 @@
 import flet as ft
-import objects.db_querys as db
 
-from objects.panel import Panel
+from src.Mappers.panel_mapper import (get_all_panels, get_panel)
+from src.Mappers.hsp_mapper import (get_all_hps, get_hsp)
+from src.Mappers.technology_mapper import (get_technology, get_all_technologies)
+from src.modules.panel_module import Panel
 from validation import only_real_numbs
 from style import (dropdown, text_and_bg)
 
@@ -25,7 +27,7 @@ class SelectPanel(ft.Column):
         "-----------"
 
         self.all_panels = dropdown("Que panel se usara?",
-                                   [ft.dropdown.Option(i.id_panel) for i in db.get_all_panels()])
+                                   [ft.dropdown.Option(i.panel_id) for i in get_all_panels()])
         self.all_panels.on_change = self.get_details
 
         self.details = ft.Container(visible=False, padding=5, border_radius=5,
@@ -58,7 +60,7 @@ class SelectPanel(ft.Column):
         self.update()
 
     def get_details(self, e):
-        panel = db.get_panel(self.all_panels.value)
+        panel = get_panel(self.all_panels.value)
 
         self.details.content=ft.Column([
             ft.Row([ft.Text("Potencia pico:"), text_and_bg(f"{panel.peak_power} Wp")]),
@@ -95,7 +97,7 @@ class SelectPlace(ft.Column):
         self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
         self.all_places = dropdown("Lugar donde se cosntruira",
-                                   [ft.dropdown.Option(i.place) for i in db.get_all_hsp()])
+                                   [ft.dropdown.Option(i.place) for i in get_all_hps()])
 
         self.all_places.on_change = self.on_change_dropdown
 
@@ -113,13 +115,13 @@ class SelectPlace(ft.Column):
 
 
     def on_change_dropdown(self, e):
-        self.value_hsp.content.value = f"{db.get_hsp(self.all_places.value).value} h/dia"
+        self.value_hsp.content.value = f"{get_hsp(self.all_places.value).value} h/dia"
         self.update()
 
     def get_hsp(self):
         if self.all_places.value is None:
             return 5.2
-        return db.get_hsp(self.all_places.value).value
+        return get_hsp(self.all_places.value).value
 
 
 class SpecificData(ft.Column):
@@ -221,7 +223,7 @@ class CalcWithArea(ft.Column):
     def __init__(self, area: float, id_panel: str, place: float, to_south: bool):
         super().__init__()
 
-        technology = db.get_technology(db.get_panel(id_panel).cell_material).surface[1]
+        technology = get_technology(get_panel(id_panel).cell_material).surface[1]
 
         self.approx_peak_power_value = round(area / technology, 2)
         self.approx_peak_power = (
@@ -237,7 +239,7 @@ class CalcWithArea(ft.Column):
             f"{self.approx_peak_power_value} \n"
         )
 
-        ap = db.get_panel(id_panel).area
+        ap = get_panel(id_panel).area
 
         if to_south:
             self.number_of_panels_value = int((area / (ap * 1.4)) + 1)
@@ -254,16 +256,16 @@ class CalcWithArea(ft.Column):
                 f"{self.number_of_panels_value} \n"
             )
 
-            self.peak_power_value = round(self.number_of_panels_value * db.get_panel(id_panel).peak_power, 2)
+            self.peak_power_value = round(self.number_of_panels_value * get_panel(id_panel).peak_power, 2)
             self.peak_power = (
                 "Potencia pico segun la cantidad de paneles que se usaran. \n"
                 "\n"
                 "Datos: \n"
                 f"Numero de paneles (N): {self.number_of_panels_value} \n"
-                f"Potencia nominal del panel (Pn): {db.get_panel(id_panel).peak_power} W \n"
+                f"Potencia nominal del panel (Pn): {get_panel(id_panel).peak_power} W \n"
                 "\n"
                 f"Calculo: \n"
-                f"Pp = N * Pn = {self.number_of_panels_value} * {db.get_panel(id_panel).peak_power} = "
+                f"Pp = N * Pn = {self.number_of_panels_value} * {get_panel(id_panel).peak_power} = "
                 f"{self.peak_power_value}"
             )
         else:
@@ -279,7 +281,7 @@ class CalcWithArea(ft.Column):
                 f"{self.number_of_panels_value} \n"
             )
 
-            self.peak_power_value = round(self.number_of_panels_value * db.get_panel(id_panel).peak_power * 0.8, 2)
+            self.peak_power_value = round(self.number_of_panels_value * get_panel(id_panel).peak_power * 0.8, 2)
             self.peak_power = ("Potencia pico segun la cantidad de paneles que se usaran. \n"
                                "\n"
                                "Al no estar los paneles orientados al sur, se hace una redupcion del 20%"
@@ -287,10 +289,10 @@ class CalcWithArea(ft.Column):
                                "\n"
                                "Datos: \n"
                                f"Numero de paneles (N): {self.number_of_panels_value} \n"
-                               f"Potencia nominal del panel (Pn): {db.get_panel(id_panel).peak_power} wp \n"
+                               f"Potencia nominal del panel (Pn): {get_panel(id_panel).peak_power} wp \n"
                                "\n"
                                f"Calculo: \n"
-                               f"Pp = N * Pn * 0.8 = {self.number_of_panels_value} * {db.get_panel(id_panel).peak_power} * 0.8 = "
+                               f"Pp = N * Pn * 0.8 = {self.number_of_panels_value} * {get_panel(id_panel).peak_power} * 0.8 = "
                                f"{self.peak_power_value}")
 
         self.hsp = place
@@ -319,7 +321,7 @@ class CalcWithPeakPower(ft.Column):
     def __init__(self, peak_power: float, id_panel: str, place: float, to_south: bool):
         super().__init__()
 
-        technology = db.get_technology(db.get_panel(id_panel).cell_material).surface[1]
+        technology = get_technology(get_panel(id_panel).cell_material).surface[1]
 
         self.approx_area_value = round((peak_power/1000) * technology, 2)
         self.approx_area = (
@@ -334,7 +336,7 @@ class CalcWithPeakPower(ft.Column):
             f"Sr = Pinst * Skwp = ({peak_power/1000} * {technology}) = {self.approx_area_value} \n"
         )
 
-        ap = db.get_panel(id_panel).area
+        ap = get_panel(id_panel).area
 
         self.hsp = place
         self.userful_energy_value = round(self.hsp * peak_power, 2)
@@ -348,45 +350,45 @@ class CalcWithPeakPower(ft.Column):
         )
 
         self.number_of_panels_value = int(
-            self.userful_energy_value / (0.654 * self.hsp * db.get_panel(id_panel).peak_power) + 1)
+            self.userful_energy_value / (0.654 * self.hsp * get_panel(id_panel).peak_power) + 1)
         self.number_of_panels = (
             "\n"
             "Datos: \n"
             f"Energia util (Eu): {self.userful_energy_value} Wh/día\n"
             f"hora solar pico (hsp): {self.hsp} m^2/kWp\n"
-            f"Potencia nominal del panel (Pn): {db.get_panel(id_panel).peak_power} W\n"
+            f"Potencia nominal del panel (Pn): {get_panel(id_panel).peak_power} W\n"
             "\n"
             f"Calculo: \n"
             f"N = Eu / (0.654 * hsp * Pn) = {self.userful_energy_value} / (0.654 * {self.hsp} * "
-            f"{db.get_panel(id_panel).peak_power}) = {self.number_of_panels_value} \n"
+            f"{get_panel(id_panel).peak_power}) = {self.number_of_panels_value} \n"
         )
 
         if to_south:
 
-            self.area_value = round(self.number_of_panels_value * db.get_panel(id_panel).area * 1.4, 2)
+            self.area_value = round(self.number_of_panels_value * get_panel(id_panel).area * 1.4, 2)
             self.area = (
                 "Al estar orientados al sur se requiere un aumento del 40% del"
                 " area requerida debido a la sombra que proyectan los paneles. \n"
                 "\n"
                 "Datos: \n"
                 f"Numero de paneles (N): {self.number_of_panels_value} \n"
-                f"Area del panel (Ap): {db.get_panel(id_panel).area} m^2\n"
+                f"Area del panel (Ap): {get_panel(id_panel).area} m^2\n"
                 "\n"
                 f"Calculo: \n"
-                f"Ar = N * Ap = {self.number_of_panels_value} * {db.get_panel(id_panel).area} * 1.4 = "
+                f"Ar = N * Ap = {self.number_of_panels_value} * {get_panel(id_panel).area} * 1.4 = "
                 f"{self.area_value}"
             )
         else:
             self.peak_power = peak_power * 0.8
 
-            self.area_value = round(float(self.number_of_panels_value * db.get_panel(id_panel).area), 2)
+            self.area_value = round(float(self.number_of_panels_value * get_panel(id_panel).area), 2)
             self.area = (
                          "Datos: \n"
                          f"Numero de paneles (N): {self.number_of_panels_value} \n"
-                         f"Area del panel (Ap): {db.get_panel(id_panel).area} m^2\n"
+                         f"Area del panel (Ap): {get_panel(id_panel).area} m^2\n"
                          "\n"
                          f"Calculo: \n"
-                         f"Ar = N * Ap = {self.number_of_panels_value} * {db.get_panel(id_panel).area} = "
+                         f"Ar = N * Ap = {self.number_of_panels_value} * {get_panel(id_panel).area} = "
                          f"{self.area_value}"
             )
 
@@ -408,7 +410,7 @@ class Economic(ft.Column):
     def __init__(self, id_panel, number_of_panels, userful_energy) -> None:
         super().__init__()
 
-        panel: Panel = db.get_panel(id_panel)
+        panel: Panel = get_panel(id_panel)
 
         self.cost = round(panel.price * number_of_panels, 2)
         self.cost_details = (

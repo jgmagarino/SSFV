@@ -1,8 +1,7 @@
 import flet as ft
 
-import objects.db_querys as db
-
-from objects.panel import Panel
+from src.Mappers.technology_mapper import get_all_technologies
+from src.modules.panel_module import Panel
 from validation import only_real_numbs
 from style import (appbar, text_filed, dropdown, unit_of_measurement, error_text, frame)
 
@@ -36,7 +35,7 @@ class CreatePanel(ft.View):
 
         self.cell_material_dropdown = dropdown(
             "Material de las celdas",
-            [ft.dropdown.Option(i.technology) for i in db.get_all_technologies()],
+            [ft.dropdown.Option(i.technology) for i in get_all_technologies()],
             400
         )
 
@@ -111,14 +110,8 @@ class CreatePanel(ft.View):
         is_correct, new_panel = self.validation_empty_filed()
 
         if is_correct:
-            err = db.insert_panel(new_panel)
 
-            if err is None:
-                self.page.go('/')
-            else:
-                self.alert_txt.value = err
-                self.alert_txt.visible = True
-                self.update()
+            self.page.go('/')
 
         else:
             self.alert_txt.value = new_panel
@@ -188,7 +181,7 @@ class CreatePanel(ft.View):
             self.price_kwh_sen_tf.border_color=ft.colors.BLUE_400
 
         return True, Panel(
-            id_panel=id_panel,
+            panel_id=id_panel,
             cell_material=cell_material,
             peak_power=float(peak_power),
             price=float(price),

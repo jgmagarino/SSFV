@@ -1,15 +1,17 @@
 """
 Aqui probare los componentes que voy creando
 """
+import random
 
-class My:
-    def __init__(self):
-        self.a = 1
+# En talla
+# from src.Mappers.hsp_mapper import *
+# from src.modules.hsp_module import *
 
-new = My()
+# En talla
+# from src.Mappers.panel_mapper import *
+# from src.modules.panel_module import *
 
-new.a = 2
 
-new.__init__()
 
-print(new.a)
+
+

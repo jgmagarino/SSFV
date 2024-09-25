@@ -81,6 +81,7 @@ class Panel:
                                      self.__price, self.__price_kwh_sen])
             return True
         else:
+            print("Error")
             return False
 
     def delete(self) -> bool:
@@ -89,6 +90,7 @@ class Panel:
             db.connect()
 
             query = """SELECT name FROM system WHERE panel_id = ?"""
+            # todo comprobar si se puede resumir esto en una funcion o algo (no es necesario) , ya que da advertencia de codigo duplicado
             sys_names = db.execute_query_all(query, [self.__panel_id])
 
             for i in range(len(sys_names)):
@@ -105,7 +107,7 @@ class Panel:
     def exist(self) -> bool:
         db = DbConnection()
         db.connect()
-
+        # todo no entiedo esta consulta, que es el 1
         query = """SELECT 1 FROM panel WHERE panel_id = ?"""
         result = db.execute_query_one(query, [self.__panel_id])
 

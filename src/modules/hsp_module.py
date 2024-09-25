@@ -72,6 +72,7 @@ class HSP:
 
         return result == (1,)
 
+    # todo donde se usa ?
     def validate(self) -> bool:
         """Valida si los datos numericos son correctos"""
         if isinstance(self.__value, (int, float)) and self.__value > 0:

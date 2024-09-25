@@ -1,10 +1,9 @@
 import flet as ft
 
-import objects.db_querys as db
-from objects.hsp import Hsp
-from objects.panel import Panel
-from objects.system import System
-from objects.technology import Technology
+
+from src.modules.panel_module import Panel
+from src.modules.hsp_module import HSP
+from src.modules.technology_module import Technology
 
 
 # todo arreglar esto para los textos que no quepan en pantalla
@@ -17,7 +16,7 @@ def info_container(info: str, value):
 
 
 class EntityInfo(ft.Container):
-    def __init__(self, entity: Panel | Hsp | Technology):
+    def __init__(self, entity: Panel | HSP | Technology):
         """
         Mustra la informacion de los atributos de la entidad.
 
@@ -40,8 +39,8 @@ class EntityInfo(ft.Container):
             self.info = [technology, area, area, price, price_kwh_sen]
 
         # Hora solar pico
-        if isinstance(entity, Hsp):
-            self.entity: Hsp = entity
+        if isinstance(entity, HSP):
+            self.entity: HSP = entity
 
             # Atributos
             place = info_container("lugar", self.entity.place)
@@ -69,7 +68,7 @@ class EntityInfo(ft.Container):
 
 
 class WhereUsed(ft.Container):
-    def __init__(self, entity: Panel | Hsp | Technology):
+    def __init__(self, entity: Panel | HSP | Technology):
         """
         Muestra los sistemas donde se usa esta entidad.
 
@@ -80,20 +79,22 @@ class WhereUsed(ft.Container):
 
         systems = []
 
-        if isinstance(entity, Panel):
-            self.entity: Panel = entity
+        # todo cambiar esto para saber donde se usa cada entidad
 
-            systems = db.find_panel(self.entity.id_panel)
-
-        if isinstance(entity, Hsp):
-            self.entity: Hsp = entity
-
-            systems = db.find_hsp(self.entity.place)
-
-        if isinstance(entity, Technology):
-            self.entity: Technology = entity
-
-            systems = db.find_technology(self.entity.technology)
+        # if isinstance(entity, Panel):
+        #     self.entity: Panel = entity
+        #
+        #     systems = find_panel(self.entity.id_panel)
+        #
+        # if isinstance(entity, Hsp):
+        #     self.entity: Hsp = entity
+        #
+        #     systems = db.find_hsp(self.entity.place)
+        #
+        # if isinstance(entity, Technology):
+        #     self.entity: Technology = entity
+        #
+        #     systems = db.find_technology(self.entity.technology)
 
         # bordes y padding
         self.border = ft.border.all(1, ft.colors.GREY)
