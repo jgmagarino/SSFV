@@ -2,10 +2,10 @@ import flet as ft
 
 from src.Mappers.panel_mapper import (get_all_panels, get_panel)
 from src.Mappers.hsp_mapper import (get_all_hps, get_hsp)
-from src.Mappers.technology_mapper import (get_technology, get_all_technologies)
+from src.Mappers.technology_mapper import (get_technology)
 from src.modules.panel_module import Panel
 from validation import only_real_numbs
-from style import (dropdown, text_and_bg)
+from style import (dropdown, text_and_bg, text_filed)
 
 
 class SelectPanel(ft.Column):
@@ -94,11 +94,18 @@ class SelectPlace(ft.Column):
         """
         super().__init__()
 
+        "-----------"
+        "PROPIEDADES"
+        "-----------"
+
         self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+
+        "-----------"
+        "COMPONENTES"
+        "-----------"
 
         self.all_places = dropdown("Lugar donde se cosntruira",
                                    [ft.dropdown.Option(i.place) for i in get_all_hps()])
-
         self.all_places.on_change = self.on_change_dropdown
 
         self.text = ft.Text("Valor de la hora solar pico : ")
@@ -107,12 +114,19 @@ class SelectPlace(ft.Column):
 
         self.crear_button = ft.TextButton("Registrar uno nuevo", on_click=lambda e: self.page.go("/create_hsp"))
 
+        "----------"
+        "ESTRUCTURA"
+        "----------"
+
         self.controls = [
             self.all_places,
             ft.Row([self.text, self.value_hsp], alignment=ft.MainAxisAlignment.CENTER),
             self.crear_button,
             ft.Divider(height=1)]
 
+    "-------"
+    "EVENTOS"
+    "-------"
 
     def on_change_dropdown(self, e):
         self.value_hsp.content.value = f"{get_hsp(self.all_places.value).value} h/dia"
@@ -128,13 +142,40 @@ class SpecificData(ft.Column):
     def __init__(self):
         super().__init__()
 
+        "-----------"
+        "PROPIEDADES"
+        "-----------"
+
+        self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+
+        "-----------"
+        "COMPONENTES"
+        "-----------"
+
+        self.selected_style = ft.ButtonStyle(color=ft.colors.WHITE, bgcolor=ft.colors.BLUE)
+        self.not_selected_style = ft.ButtonStyle(color=ft.colors.BLUE, bgcolor=ft.colors.WHITE)
+
         self.yes_button = ft.ElevatedButton("Si", on_click=self.change_specific_data,
-                                            bgcolor=ft.colors.BLUE,
-                                            color=ft.colors.WHITE,
-                                            )
-        self.no_button = ft.ElevatedButton("No", on_click=self.change_specific_data)
+                                            style=self.selected_style)
+        self.no_button = ft.ElevatedButton("No", on_click=self.change_specific_data,
+                                           style=self.not_selected_style)
 
         self.is_specific_area = True
+
+        self.specific_area = text_filed(label="Area disponible:", width=150)
+        self.specific_area.on_change=only_real_numbs
+
+        self.specific_Pinst = text_filed(label="Potencia a isntalar:", width=150)
+        self.specific_Pinst.on_change=only_real_numbs
+
+        self.text_filed = text_filed(label="Area disponible:", width=150)
+        self.text_filed.on_change=only_real_numbs
+
+        self.to_south = ft.Checkbox(label="Orientados al sur")
+
+        "----------"
+        "ESTRUCTURA"
+        "----------"
 
         self.yes_or_no = ft.Container(
             content=ft.Column([
@@ -147,41 +188,27 @@ class SpecificData(ft.Column):
             border=ft.border.all(1, ft.colors.GREY)
         )
 
-        self.specific_area = ft.TextField(label="Area disponible:",
-                                          width=150,
-                                          on_change=only_real_numbs)
-        self.specific_Pinst = ft.TextField(label="Potencia a isntalar:",
-                                           width=150,
-                                           input_filter=ft.NumbersOnlyInputFilter())
-
-        self.text_filed = ft.TextField(label="Area disponible:", width=150, on_change=only_real_numbs)
-
-        self.to_south = ft.Checkbox(label="Orientados al sur")
-
         self.controls = [self.yes_or_no, ft.Row([self.text_filed, self.to_south])]
 
-        self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-
+    "-------"
+    "EVENTOS"
+    "-------"
 
     def change_specific_data(self, e):
-        if self.is_specific_area:
-            self.yes_button.bgcolor = ft.colors.WHITE
-            self.no_button.bgcolor = ft.colors.BLUE
-
-            self.no_button.color = ft.colors.WHITE
-            self.yes_button.color = ft.colors.BLUE
-
-            self.text_filed.label = "Potencia a instalar:"
-        else:
-            self.yes_button.bgcolor = ft.colors.BLUE
-            self.no_button.bgcolor = ft.colors.WHITE
-
-            self.yes_button.color = ft.colors.WHITE
-            self.no_button.color = ft.colors.BLUE
-
-            self.text_filed.label = "Area disponible:"
 
         self.is_specific_area = not self.is_specific_area
+
+        if self.is_specific_area:
+            self.yes_button.style = self.selected_style
+            self.no_button.style = self.not_selected_style
+
+            self.text_filed.label = "Area disponible:"
+        else:
+            self.no_button.style = self.selected_style
+            self.yes_button.style = self.not_selected_style
+
+            self.text_filed.label = "Potencia a instalar:"
+
         self.update()
 
 
@@ -194,19 +221,41 @@ class SpecificData(ft.Column):
 
 class Result(ft.Container):
     def __init__(self, title, details):
+        """
+        Sirve para mostrar un calculo en especifico y sus detalles que son : Datos, calculo paso a paso
+        y resultado.
+        :param title: resultado obtenido
+        :param details: Datos, calculo paso a paso y resultado.
+        """
         super().__init__()
+
+        "-----------"
+        "PROPIEDADES"
+        "-----------"
+
+        self.border = ft.border.all(1, ft.colors.GREY)
+        self.border_radius = 5
+        self.padding = 10
+
+        "-----------"
+        "COMPONENTES"
+        "-----------"
 
         self.button_details = ft.IconButton(ft.icons.ARROW_UPWARD, on_click=self.close_details)
         self.details = ft.Column([ft.Text(details), self.button_details], visible=False)
+
+        "----------"
+        "ESTRUCTURA"
+        "----------"
 
         self.content = ft.Column([
             ft.Row([ft.ElevatedButton(text=title,on_click=self.see_details)], alignment=ft.MainAxisAlignment.SPACE_BETWEEN, wrap=True),
             self.details
         ])
 
-        self.border=ft.border.all(1, ft.colors.GREY)
-        self.border_radius=5
-        self.padding=10
+    "-------"
+    "EVENTOS"
+    "-------"
 
     def close_details(self, e):
         self.details.visible = False
@@ -221,6 +270,16 @@ class Result(ft.Container):
 
 class CalcWithArea(ft.Column):
     def __init__(self, area: float, id_panel: str, place: float, to_south: bool):
+        """
+        Aqui realizo todos los calculos teniendo un area especificada, para cada  calculo existe
+        'variable_value' que guarda el resultado del calculo y 'variable', que guarda la descripcion
+        del calculo.
+
+        :param area: area especificada
+        :param id_panel: panel que se usara
+        :param place: lugar donde se construira
+        :param to_south: si los paneles estan orientados al sur o no
+        """
         super().__init__()
 
         technology = get_technology(get_panel(id_panel).cell_material).surface[1]

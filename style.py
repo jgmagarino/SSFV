@@ -1,5 +1,4 @@
 import flet as ft
-from dns.name import empty
 
 
 # Campos predefinidos para crear nuevas entidades
