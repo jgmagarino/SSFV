@@ -4,15 +4,15 @@ import flet as ft
 from src.modules.panel_module import Panel
 from src.modules.hsp_module import HSP
 from src.modules.technology_module import Technology
+from style import (text_and_bg, unit_of_measurement)
 
 
-# todo arreglar esto para los textos que no quepan en pantalla
-def info_container(info: str, value):
+def info_container(info: str, value, unit=None):
     return ft.Row([
-        ft.Container(content=ft.Text(f"{info} :", size=15),
-                     bgcolor=ft.colors.BLUE_100, padding=5, border_radius=5),
-        ft.Text(value, size=15)
-    ], scroll=ft.ScrollMode.ADAPTIVE)
+        text_and_bg(text=info),
+        ft.Text(value, size=15),
+        unit if unit is not None else ft.Text(""),
+    ])
 
 
 class EntityInfo(ft.Container):
@@ -25,18 +25,31 @@ class EntityInfo(ft.Container):
 
         super().__init__()
 
+        "-----------"
+        "PROPIEDADES"
+        "-----------"
+
+        self.border = ft.border.all(1, ft.colors.GREY)
+        self.border_radius = 5
+        self.padding = 10
+
+        "----------"
+        "ESTRUCTURA"
+        "----------"
+
         # Panel
         if isinstance(entity, Panel):
             self.entity: Panel = entity
 
             # Atributos
-            technology = info_container("potencia pico", self.entity.peak_power)
-            area = info_container("material de las celdas", self.entity.cell_material)
-            area = info_container("area", self.entity.area)
-            price = info_container("precio", self.entity.price)
-            price_kwh_sen = info_container("precio del kwh SEN", self.entity.price_kwh_sen)
+            technology = info_container("potencia pico", self.entity.peak_power, unit_of_measurement("W"))
+            cell_material = info_container("material de las celdas", self.entity.cell_material)
+            area = info_container("area", self.entity.area, unit_of_measurement("m^2"))
+            price = info_container("precio", self.entity.price, unit_of_measurement("cup"))
+            price_kwh_sen = info_container("precio del kwh SEN", self.entity.price_kwh_sen,
+                                           unit_of_measurement("cup"))
 
-            self.info = [technology, area, area, price, price_kwh_sen]
+            self.info = [technology, cell_material, area, price, price_kwh_sen]
 
         # Hora solar pico
         if isinstance(entity, HSP):
@@ -44,7 +57,7 @@ class EntityInfo(ft.Container):
 
             # Atributos
             place = info_container("lugar", self.entity.place)
-            value = info_container("valor", self.entity.value)
+            value = info_container("valor", self.entity.value, unit_of_measurement("h/día"))
 
             self.info = [place, value]
 
@@ -55,16 +68,12 @@ class EntityInfo(ft.Container):
             # Atributos
             technology = info_container("tecnologia", self.entity.technology)
             area = info_container("area requerida",
-                                           f"{self.entity.surface[0]} - {self.entity.surface[1]}")
+                                           f"{self.entity.surface[0]} - {self.entity.surface[1]}",
+                                  unit_of_measurement("m^2"))
 
             self.info = [technology, area]
 
-        # bordes y padding
-        self.border = ft.border.all(1, ft.colors.GREY)
-        self.border_radius = 5
-        self.padding = 10
-
-        self.content = ft.Column(self.info)
+        self.content = ft.Row([ft.Column(self.info)], scroll=ft.ScrollMode.ADAPTIVE)
 
 
 class WhereUsed(ft.Container):
@@ -74,8 +83,15 @@ class WhereUsed(ft.Container):
 
         :param entity:
         """
-
         super().__init__()
+
+        "-----------"
+        "PROPIEDADES"
+        "-----------"
+
+        self.border = ft.border.all(1, ft.colors.GREY)
+        self.border_radius = 5
+        self.padding = 10
 
         systems = []
 
@@ -95,11 +111,6 @@ class WhereUsed(ft.Container):
         #     self.entity: Technology = entity
         #
         #     systems = db.find_technology(self.entity.technology)
-
-        # bordes y padding
-        self.border = ft.border.all(1, ft.colors.GREY)
-        self.border_radius = 5
-        self.padding = 10
 
         # todo cambiar cuando ya se pueda añadir sistemas
         if systems:
