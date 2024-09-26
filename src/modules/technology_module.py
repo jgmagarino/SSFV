@@ -6,6 +6,9 @@ class Technology:
 
     def __init__(self, technology: str, surface: str):
         self.__technology = str(technology)
+        # todo con la superficie tenemos que ver de que forma validamos para que solo se entre en este formato:
+        # {rango menor - rango mayor}, y debes extraer un metodo para tener uno u otro, para esto recomiendo
+        # el uso de expreciones regulares (Pidele ayuda a ChatGPT yo habia hecho algo parecido)
         self.__surface = surface.replace(" ", "")
         self.__visible = 1
 
