@@ -1,20 +1,19 @@
 """
 Aqui probare los componentes que voy creando
 """
-import random
+from components.show_components import *
+from src.Mappers.panel_mapper import *
+import flet as ft
 
-# En talla
-# from src.Mappers.hsp_mapper import *
-# from src.modules.hsp_module import *
 
-# En talla
-# from src.Mappers.panel_mapper import *
-# from src.modules.panel_module import *
+def main(page: ft.Page):
+    page.theme_mode = ft.ThemeMode.LIGHT
 
-from src.Mappers.technology_mapper import *
+    new = get_panel("mejor")
 
-t = get_technology("silicio monocristalino")
+    page.controls.append(ShowPanel(new))
+    page.update()
 
-print(f"{t.technology}, {t.get_min_surface_req()}")
+ft.app(main)
 
 

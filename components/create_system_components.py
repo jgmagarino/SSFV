@@ -282,7 +282,7 @@ class CalcWithArea(ft.Column):
         """
         super().__init__()
 
-        technology = get_technology(get_panel(id_panel).cell_material).get_min_surface_req()
+        technology = get_technology(get_panel(id_panel).cell_material).convert_to_number()[1]
 
         self.approx_peak_power_value = round(area / technology, 2)
         self.approx_peak_power = (
@@ -380,7 +380,7 @@ class CalcWithPeakPower(ft.Column):
     def __init__(self, peak_power: float, id_panel: str, place: float, to_south: bool):
         super().__init__()
 
-        technology = (get_technology(get_panel(id_panel).cell_material)).get_min_surface_req()
+        technology = (get_technology(get_panel(id_panel).cell_material)).convert_to_number()[1]
 
         self.approx_area_value = round((peak_power/1000) * technology, 2)
         self.approx_area = (

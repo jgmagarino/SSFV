@@ -224,16 +224,6 @@ class GeneralMiniature(ft.Container):
         # ancho
         self.width = 400
 
-        # todo aun falta crear los componentes para mostrar la informacion de los sistemas
-        if isinstance(entity, System):
-            self.text = entity.name
-            self.all_details = [
-                ft.Text(self.text),
-                self.buttons
-            ]
-
-            self.details_button.on_click = lambda e: print("ver detalles")
-
         # Panel
         if isinstance(entity, Panel):
             self.text = entity.panel_id

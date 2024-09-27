@@ -131,3 +131,4 @@ class Technology:
         if num1 < num2:
             return tuple([num1, num2])
         return tuple([num2, num1])
+

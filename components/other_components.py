@@ -37,6 +37,8 @@ class EntityInfo(ft.Container):
         "ESTRUCTURA"
         "----------"
 
+        self.info = []
+
         # Panel
         if isinstance(entity, Panel):
             self.entity: Panel = entity
@@ -68,7 +70,7 @@ class EntityInfo(ft.Container):
             # Atributos
             technology = info_container("tecnologia", self.entity.technology)
             area = info_container("area requerida",
-                                           f"{self.entity.surface[0]} - {self.entity.surface[1]}",
+                                           f"{self.entity.convert_to_number()[0]} - {self.entity.convert_to_number()[1]}",
                                   unit_of_measurement("m^2"))
 
             self.info = [technology, area]
@@ -77,7 +79,7 @@ class EntityInfo(ft.Container):
 
 
 class WhereUsed(ft.Container):
-    def __init__(self, entity: Panel | HSP | Technology):
+    def __init__(self, entity: Panel | HSP):
         """
         Muestra los sistemas donde se usa esta entidad.
 
@@ -93,27 +95,12 @@ class WhereUsed(ft.Container):
         self.border_radius = 5
         self.padding = 10
 
-        systems = []
+        if isinstance(entity, Panel) or isinstance(entity, HSP):
+            systems = [ft.Text(i.name) for i in entity.get_system()]
+        else:
+            systems = None
 
-        # todo cambiar esto para saber donde se usa cada entidad
-
-        # if isinstance(entity, Panel):
-        #     self.entity: Panel = entity
-        #
-        #     systems = find_panel(self.entity.id_panel)
-        #
-        # if isinstance(entity, Hsp):
-        #     self.entity: Hsp = entity
-        #
-        #     systems = db.find_hsp(self.entity.place)
-        #
-        # if isinstance(entity, Technology):
-        #     self.entity: Technology = entity
-        #
-        #     systems = db.find_technology(self.entity.technology)
-
-        # todo cambiar cuando ya se pueda añadir sistemas
         if systems:
-            pass
+            self.content = ft.Column(systems)
         else:
             self.content = ft.Text("No se usa en ningun sistema.")
