@@ -1,4 +1,5 @@
 from src.database.db_connection import DbConnection
+from src.modules.system_module import System
 
 
 class HSP:
@@ -33,7 +34,9 @@ class HSP:
         self.__visible = value
 
     def save(self) -> bool:
-        if not self.exist():
+        """Guarda en la base de datos el objeto correpondiente
+        :return: Retorna True si el objeto esta validado correctamente"""
+        if not self.exist() and self.validate():
             db = DbConnection()
             db.connect()
 
@@ -45,6 +48,7 @@ class HSP:
             return False
 
     def delete(self) -> bool:
+        """Elimina el objeto correspondiente"""
         if self.exist():
             db = DbConnection()
             db.connect()
@@ -64,6 +68,7 @@ class HSP:
             return False
 
     def exist(self):
+        """Verifica si existe en la base de datos el objeto correspondiente y de ser asi retorna True"""
         db = DbConnection()
         db.connect()
 
@@ -72,9 +77,24 @@ class HSP:
 
         return result == (1,)
 
-    # todo donde se usa ?
     def validate(self) -> bool:
         """Valida si los datos numericos son correctos"""
         if isinstance(self.__value, (int, float)) and self.__value > 0:
             return True
         return False
+
+    def get_system(self) -> list[System]:
+        """Devuelve los sistemas donde se utiliza este objeto en una lista de objetos tipo sistema"""
+        aux_list = list()
+        query = f'SELECT * FROM system WHERE place = ?'
+
+        db = DbConnection()
+        db.connect()
+        result = db.execute_query_all(query, [self.__place])
+
+        for i in range(len(result)):
+            name, id_panel, place, progress, description, to_south = result[i]
+            new_system = System(name, id_panel, place, progress, bool(to_south))
+            aux_list.append(new_system)
+
+        return aux_list

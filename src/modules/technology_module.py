@@ -3,12 +3,16 @@ from src.database.db_connection import DbConnection
 
 
 class Technology:
+    """
+    Clase que referencia al objeto tecnologia
+    """
 
     def __init__(self, technology: str, surface: str):
+        """
+        :param technology: atributo que referencia al material de cada tecnologia
+        :param surface: atributo que referencia al area de cada tecnologia
+        """
         self.__technology = str(technology)
-        # todo con la superficie tenemos que ver de que forma validamos para que solo se entre en este formato:
-        # {rango menor - rango mayor}, y debes extraer un metodo para tener uno u otro, para esto recomiendo
-        # el uso de expreciones regulares (Pidele ayuda a ChatGPT yo habia hecho algo parecido)
         self.__surface = surface.replace(" ", "")
         self.__visible = 1
 
@@ -37,6 +41,10 @@ class Technology:
         self.__visible = value
 
     def save(self) -> bool:
+        """
+        Guarda en la base de datos el objeto correpondiente
+        :return: Retorna True si el objeto esta validado correctamente
+        """
         if not self.exist() and self.validate():
             db = DbConnection()
             db.connect()
@@ -49,6 +57,7 @@ class Technology:
             return False
 
     def delete(self) -> bool:
+        """Elimina en la base de datos el objeto correpondiente """
         if self.exist():
             db = DbConnection()
             db.connect()
@@ -78,6 +87,7 @@ class Technology:
             return False
 
     def exist(self):
+        """Verifica si existe en la base de datos  el objeto correspondiente y de ser asi retorna True"""
         db = DbConnection()
         db.connect()
 
@@ -87,12 +97,17 @@ class Technology:
         return result == (1,)
 
     def validate(self) -> bool:
+        """Valida el objeto correspondiente y de ser valido retorna True"""
         if re.match(r"^\d+(\.\d+)?-\d+(\.\d+)?$", self.__surface):
             return True
         else:
             return False
 
     def convert_to_number(self):
+        """Convierte a numeros el dato del area de la tecnologia
+            :return: retorna una tupla con los datos convertidos a numeros
+            Ejemplo de retorno: '7-9' => (7,9)
+        """
         numbers = self.__surface.split('-')
         num1 = float(numbers[0])
         num2 = float(numbers[1])

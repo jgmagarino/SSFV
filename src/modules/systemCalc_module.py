@@ -5,13 +5,17 @@ from src.modules.technology_module import Technology
 
 
 class SystemCalc:
+    """Clase que referencia a los calculos del sistema"""
+    def __init__(self, system: System):
+        """
 
-    def __init__(self, system: System, to_south: bool = False):
+        :param system: Sistema al cual se le va a ejecutar los calculos
+        """
+        self.__id = None
         self.__peak_power = 0
         self.__number_of_panels = 0
         self.__area = 0
         self.__useful_energy = 0
-        self.__to_south = to_south
         self.__system = system
 
     @property
@@ -21,14 +25,6 @@ class SystemCalc:
     @id.setter
     def id(self, value):
         self.__id = value
-
-    @property
-    def to_south(self):
-        return self.__to_south
-
-    @to_south.setter
-    def to_south(self, value):
-        self.__to_south = value
 
     @property
     def system(self):
@@ -95,6 +91,7 @@ class SystemCalc:
             return False
 
     def exist(self):
+        """Verifica si existe en la base de datos  el objeto correspondiente y de ser asi retorna True"""
         db = DbConnection()
         db.connect()
 
@@ -108,9 +105,9 @@ class SystemCalc:
 
 
 class SystemCalcPeakPower(SystemCalc):
-
-    def __init__(self, system: System, surface_available: float, to_south: bool = False):
-        super().__init__(system, to_south)
+    """Clase que referencia a los calculos del sistema en funcion de el area requerida"""
+    def __init__(self, system: System, surface_available: float):
+        super().__init__(system)
         self.__surface_available = float(surface_available)
         self.area = surface_available
 
@@ -135,6 +132,7 @@ class SystemCalcPeakPower(SystemCalc):
         return self.__surface_available / technology.convert_to_number()[1]
 
     def num_panels(self) -> int:
+        """Calcula el numero de paneles del sistema"""
         panel_id = self.system.panel_id
         db = DbConnection()
         db.connect()
@@ -146,6 +144,7 @@ class SystemCalcPeakPower(SystemCalc):
         return math.ceil(self.__surface_available / panel_area)
 
     def calc_peak_power(self) -> float:
+        """Calcula la potencia pico a intalar en el sistema"""
         panel_id = self.system.panel_id
         db = DbConnection()
         db.connect()
@@ -153,7 +152,7 @@ class SystemCalcPeakPower(SystemCalc):
         query = """SELECT peak_power from panel WHERE panel_id = ?"""
         panel_power = db.execute_query_one(query, [panel_id])[0]
 
-        if not self.to_south:
+        if not self.system.to_south:
             result1 = 0.8 * self.num_panels() * panel_power
             self.peak_power = result1
             return result1
@@ -163,6 +162,7 @@ class SystemCalcPeakPower(SystemCalc):
             return result2
 
     def calc_useful_energy(self):
+        """Calcula la energia util del sistema"""
         place = self.system.place
         db = DbConnection()
         db.connect()
@@ -174,20 +174,24 @@ class SystemCalcPeakPower(SystemCalc):
         self.useful_energy = result
         return result
 
+    def validate(self) -> bool:
+        """Valida si el area disponible para el sistema es de valor numerico"""
+        return isinstance(self.__surface_available, (int, float))
+
 
 # -------------------------------------------------------------------------------------------------------------
 
 
 class SystemCalcArea(SystemCalc):
-
-    def __init__(self, system: System, peak_powwer: float, to_south: bool = False):
-        super().__init__(system, to_south)
+    """Clase que referencia a los calculos del sistema en funcion de la potencia pico a instalar"""
+    def __init__(self, system: System, peak_powwer: float):
+        super().__init__(system)
         self.__peak_power = float(peak_powwer)
         self.peak_power = peak_powwer
 
     def approx_required_surface(self, worst_case: bool) -> float:
         """Calcula el area requerida aproximada del sistema en dependencia si se toma el peor o mejor caso
-                del valor del area de la tecnologia determinada"""
+            del valor del area de la tecnologia determinada"""
         panel_id = self.system.panel_id
 
         db = DbConnection()
@@ -205,6 +209,7 @@ class SystemCalcArea(SystemCalc):
         return self.__peak_power * technology.convert_to_number()[1]
 
     def calc_useful_energy(self) -> float:
+        """Calcula la energia util del sistema"""
         place = self.system.place
 
         db = DbConnection()
@@ -218,6 +223,7 @@ class SystemCalcArea(SystemCalc):
         return result
 
     def num_panels(self) -> int:
+        """Calcula el numero de paneles del sistema"""
         panel_id = self.system.panel_id
         place = self.system.place
 
@@ -235,6 +241,7 @@ class SystemCalcArea(SystemCalc):
         return result
 
     def calc_required_surface(self):
+        """Calcula el area requerida para el sistema"""
         panel_id = self.system.panel_id
         db = DbConnection()
         db.connect()
@@ -242,7 +249,7 @@ class SystemCalcArea(SystemCalc):
         query = """SELECT area from panel WHERE panel_id = ?"""
         panel_area = db.execute_query_one(query, [panel_id])[0]
 
-        if not self.to_south:
+        if not self.system.to_south:
             result = self.num_panels() * panel_area
             self.area = result
             return result
@@ -250,3 +257,7 @@ class SystemCalcArea(SystemCalc):
             result = 1.4 * self.num_panels() * panel_area
             self.area = result
             return result
+
+    def validate(self) -> bool:
+        """Valida si la potencia pico a instalar es de valor numerico"""
+        return isinstance(self.__peak_power, (int, float))

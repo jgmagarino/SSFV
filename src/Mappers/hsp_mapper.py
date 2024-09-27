@@ -32,7 +32,6 @@ def get_hsp(place: str) -> HSP:
     db.connect()
     result = db.execute_query_one(query, [place])
 
-    # todo Comprueba que existe el hsp antes de retornarlo, en caso de no existir devuelve un mensaje
     place, value = result
     hsp = HSP(place, value)
     return hsp

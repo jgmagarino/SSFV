@@ -4,6 +4,7 @@ from src.modules.system_module import System
 
 
 class EconomicCalc:
+    """Clase que referencia a los calculos economicos del sistema"""
     def __init__(self, system: System, system_calc: SystemCalc):
         self.__system = system
         self.__cost = 0
@@ -44,6 +45,7 @@ class EconomicCalc:
         self.__recovery_period = value
 
     def calc_cost(self):
+        """Calcula el costo del sistema"""
         panel_id = self.__system.panel_id
         sys_name = self.__system_calc.system.name
 
@@ -61,6 +63,7 @@ class EconomicCalc:
         return result
 
     def calc_income(self):
+        """Calcula los ingresos del sistema"""
         panel_id = self.__system.panel_id
         sys_name = self.__system_calc.system.name
 
@@ -78,11 +81,13 @@ class EconomicCalc:
         return result
 
     def calc_recovery_period(self):
+        """Calcula el periodo de recuperacion de la inversion del sistema"""
         result = self.calc_cost() / self.calc_income()
         self.recovery_period = result
         return result
 
     def save(self):
+        """Guarda en la base de datos el objeto correpondiente"""
         if not self.exist():
             db = DbConnection()
             db.connect()
@@ -97,6 +102,7 @@ class EconomicCalc:
             return False
 
     def delete(self):
+        """Elimina el objeto correspondiente"""
         if self.exist():
             db = DbConnection()
             db.connect()
@@ -107,6 +113,7 @@ class EconomicCalc:
             return False
 
     def exist(self):
+        """Verifica si existe en la base de datos el objeto correspondiente y de ser asi retorna True"""
         db = DbConnection()
         db.connect()
 

@@ -2,14 +2,30 @@ from src.database.db_connection import DbConnection
 
 
 class System:
-
-    def __init__(self, name: str, panel_id: str, place: str, progress: int = 1):
+    """Clase que referencia al sistema"""
+    def __init__(self, name: str, panel_id: str, place: str, progress: int = 1, to_south: bool = False):
+        """
+        :param name: Referencia al nombre del sistema
+        :param panel_id: Referencia al id del panel utilizado en el sistema
+        :param place: Referencia al lugar de la hora solar pico utilizada por el sistema
+        :param progress: Referencia al progreso del sistema
+        :param to_south: Referencia a si es sistema anterior esta en posicion al sur o no
+        """
+        self.__to_south = to_south
         self.__name = str(name)
         self.__panel_id = str(panel_id)
         self.__place = str(place)
         self.__description = 'no hay descripcion'
         self.__progress = progress
         self.__visible = 1
+
+    @property
+    def to_south(self):
+        return self.__to_south
+
+    @to_south.setter
+    def to_south(self, value):
+        self.__to_south = value
 
     @property
     def name(self):
@@ -60,19 +76,22 @@ class System:
         self.__visible = value
 
     def save(self) -> bool:
+        """Guarda en la base de datos el objeto correpondiente"""
         if not self.exist():
             db = DbConnection()
             db.connect()
 
-            query = """INSERT INTO system (name, panel_id, place, progress, description) 
-                                                        VALUES (?, ?, ?, ?, ?)"""
+            query = """INSERT INTO system (name, panel_id, place, progress, description, to_south) 
+                                                        VALUES (?, ?, ?, ?, ?, ?)"""
 
-            db.execute_query(query, [self.__name, self.__panel_id, self.__place, self.__progress, self.__description])
+            db.execute_query(query, [self.__name, self.__panel_id, self.__place,
+                                     self.__progress, self.__description, str(self.__to_south)])
             return True
         else:
             return False
 
     def delete(self) -> bool:
+        """Elimina en la base de datos el objeto correpondiente """
         if self.exist():
             db = DbConnection()
             db.connect()
@@ -85,6 +104,7 @@ class System:
             return False
 
     def exist(self):
+        """Verifica si existe en la base de datos  el objeto correspondiente y de ser asi retorna True"""
         db = DbConnection()
         db.connect()
 
