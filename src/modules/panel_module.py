@@ -1,10 +1,19 @@
 from src.database.db_connection import DbConnection
+from src.modules.system_module import System
 
 
 class Panel:
-
+    """Clase que referencia al objeto panel"""
     def __init__(self, panel_id: str, peak_power: float, cell_material: str, area: float, price: float,
                  price_kwh_sen: float):
+        """
+        :param panel_id: Referencia al id del panel
+        :param peak_power: Referencia a la potencia pico del panel
+        :param cell_material: Referencia al material de las celdas del panel
+        :param area: Referencia al area del panel
+        :param price: Referencia al precio del panel
+        :param price_kwh_sen: Referencia al precio por kwh del panel
+        """
         self.__panel_id = str(panel_id)
         self.__peak_power = peak_power
         self.__cell_material = str(cell_material)
@@ -70,6 +79,8 @@ class Panel:
         self.__visible = new_visible
 
     def save(self) -> bool:
+        """Guarda en la base de datos el objeto correpondiente
+        :return: Retorna True si el objeto esta validado correctamente"""
         if not self.exist() and self.validate():
             db = DbConnection()
             db.connect()
@@ -81,16 +92,15 @@ class Panel:
                                      self.__price, self.__price_kwh_sen])
             return True
         else:
-            print("Error")
             return False
 
     def delete(self) -> bool:
+        """Elimina el objeto correspondiente"""
         if self.exist():
             db = DbConnection()
             db.connect()
 
             query = """SELECT name FROM system WHERE panel_id = ?"""
-            # todo comprobar si se puede resumir esto en una funcion o algo (no es necesario) , ya que da advertencia de codigo duplicado
             sys_names = db.execute_query_all(query, [self.__panel_id])
 
             for i in range(len(sys_names)):
@@ -105,9 +115,10 @@ class Panel:
             return False
 
     def exist(self) -> bool:
+        """Verifica si existe en la base de datos el objeto correspondiente y de ser asi retorna True"""
         db = DbConnection()
         db.connect()
-        # todo no entiedo esta consulta, que es el 1
+
         query = """SELECT 1 FROM panel WHERE panel_id = ?"""
         result = db.execute_query_one(query, [self.__panel_id])
 
@@ -121,3 +132,19 @@ class Panel:
         ch4 = isinstance(self.__price_kwh_sen, (int, float)) and self.__price_kwh_sen > 0
 
         return ch1 and ch2 and ch3 and ch4
+
+    def get_system(self) -> list[System]:
+        """Devuelve los sistemas donde se utiliza este objeto en una lista de objetos tipo sistema"""
+        aux_list = list()
+        query = f'SELECT * FROM system WHERE panel_id = ?'
+
+        db = DbConnection()
+        db.connect()
+        result = db.execute_query_all(query, [self.__panel_id])
+
+        for i in range(len(result)):
+            name, id_panel, place, progress, description, to_south = result[i]
+            new_system = System(name, id_panel, place, progress, bool(to_south))
+            aux_list.append(new_system)
+
+        return aux_list
