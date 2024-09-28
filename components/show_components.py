@@ -1,36 +1,75 @@
 import flet as ft
+from annotated_types import Unit
 
+from src.modules.hsp_module import HSP
 from src.modules.panel_module import Panel
-from style import text_and_bg, unit_of_measurement
+from src.modules.system_module import System
+from src.modules.technology_module import Technology
+from style import text_and_bg, unit_of_measurement, frame
 
 
 def show_row(atr: str, info, unit=None):
     return ft.Row([text_and_bg(atr), ft.Text(info), unit_of_measurement(unit) if unit else ft.Text("")])
 
-class ShowPanel(ft.Container):
-    def __init__(self, panel: Panel):
+def get_details(entity: HSP | Panel):
+
+    frame_systems = ft.Text("")
+
+    if not isinstance(entity, Technology):
+        frame_systems = frame(ft.Column( [text_and_bg("Se usa en: ")] +
+                                 [text_and_bg(i.name, ft.colors.GREY) for i in entity.get_system()]))
+        frame_systems.border = ft.border.all(1, ft.colors.GREY)
+
+    if isinstance(entity, HSP):
+        return ft.Column([
+            show_row("Lugar: ", entity.place),
+            show_row("Value: ", entity.value),
+            ft.Divider(height=1),
+            frame_systems
+        ])
+    if isinstance(entity, Panel):
+        return ft.Column([
+            show_row("Potencia pico: ", entity.peak_power, "W"),
+            show_row("Material de las celdas: ", entity.cell_material),
+            show_row("Area: ", entity.area, "m^2"),
+            show_row("Price: ", entity.price, "cup"),
+            show_row("Precio del kwh SEN: ", entity.price_kwh_sen, "cup"),
+            ft.Divider(height=1),
+            frame_systems
+        ])
+    if isinstance(entity, Technology):
+        return ft.Column([
+            show_row("Tecnologia: ", entity.technology),
+            show_row("Area requerida: ", entity.surface),
+        ])
+
+
+class ShowEntity(ft.Container):
+    def __init__(self, entity: Panel | HSP | Technology):
         super().__init__()
 
-        self.panel = panel
+        self.entity = entity
 
         self.bgcolor = ft.colors.WHITE
         self.padding = 10
         self.border_radius = 10
         self.border = ft.border.all(1, ft.colors.GREY)
-        self.width = 300
+        self.width = 250
 
-        column = ft.Column([
-            show_row("Potencia pico: ", panel.peak_power, "W"),
-            show_row("Material de las celdas: ", panel.cell_material),
-            show_row("Area: ", panel.area, "m^2"),
-            show_row("Price: ", panel.price, "cup"),
-            show_row("Precio del kwh SEN: ", panel.price_kwh_sen, "cup")
-        ])
+        self.more_info = ft.Row([get_details(entity)],
+                                scroll=ft.ScrollMode.ADAPTIVE, visible=False)
 
-        self.more_info = ft.Row([column], scroll=ft.ScrollMode.ADAPTIVE, visible=False)
+        title = ""
+
+        if isinstance(entity, HSP):
+            title = entity.place
+        elif isinstance(entity, Panel):
+            title = entity.panel_id
+        elif isinstance(entity, Technology):
+            title = entity.technology
 
         self.content = ft.Column([
-            ft.Text(panel.panel_id, size=20),
+            ft.Text(title, size=20),
             self.more_info,
             ft.Divider(height=1),
             ft.Row([ft.ElevatedButton("Detalles", on_click=self.show_details),
@@ -49,13 +88,28 @@ class ShowPanel(ft.Container):
         self.update()
 
     def remove(self, e):
-        self.panel.visible = 0
-        self.panel.delete()
-        self.panel.save()
         self.visible = False
         self.update()
 
+        self.entity.visible = 0
+        self.entity.delete()
+        self.entity.save()
 
+class ShowSystem(ft.Container):
+    def __init__(self, system: System):
+        super().__init__()
 
+        self.system = system
 
+        self.bgcolor = ft.colors.WHITE
+        self.padding = 10
+        self.border_radius = 10
+        self.border = ft.border.all(1, ft.colors.GREY)
+        self.width = 250
 
+        go_to_details = ft.ElevatedButton("Ver detalles")
+
+        self.content = ft.Column([
+            ft.Text(system.name, size=20),
+            go_to_details,
+        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
