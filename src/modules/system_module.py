@@ -77,38 +77,22 @@ class System:
 
     def save(self) -> bool:
         """Guarda en la base de datos el objeto correpondiente"""
-        if not self.exist():
-            db = DbConnection()
-            db.connect()
-
-            query = """INSERT INTO system (name, panel_id, place, progress, description, to_south) 
-                                                        VALUES (?, ?, ?, ?, ?, ?)"""
-
-            db.execute_query(query, [self.__name, self.__panel_id, self.__place,
-                                     self.__progress, self.__description, str(self.__to_south)])
-            return True
-        else:
-            return False
-
-    def delete(self) -> bool:
-        """Elimina en la base de datos el objeto correpondiente """
-        if self.exist():
-            db = DbConnection()
-            db.connect()
-
-            db.delete_row('system_calc', "system_name", self.__name)
-            db.delete_row('economic_calc', "system_name", self.__name)
-            db.delete_row('system', "name", self.__name)
-            return True
-        else:
-            return False
-
-    def exist(self):
-        """Verifica si existe en la base de datos  el objeto correspondiente y de ser asi retorna True"""
         db = DbConnection()
         db.connect()
 
-        query = """SELECT 1 FROM system WHERE name = ?"""
-        result = db.execute_query_one(query, [self.__name])
+        query = """INSERT INTO System (name, panel_id, place, progress, description, to_south) 
+                                                        VALUES (?, ?, ?, ?, ?, ?)"""
 
-        return result == (1,)
+        db.execute_query(query, [self.__name, self.__panel_id, self.__place,
+                                self.__progress, self.__description, str(self.__to_south)])
+        return True
+
+    def delete(self) -> bool:
+        """Elimina en la base de datos el objeto correpondiente """
+        db = DbConnection()
+        db.connect()
+
+        db.delete_row('SystemCalc', "system_name", self.__name)
+        db.delete_row('EconomicCalc', "system_name", self.__name)
+        db.delete_row('System', "name", self.__name)
+        return True

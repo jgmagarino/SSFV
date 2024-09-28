@@ -4,6 +4,7 @@ from src.modules.system_module import System
 
 class Panel:
     """Clase que referencia al objeto panel"""
+
     def __init__(self, panel_id: str, peak_power: float, cell_material: str, area: float, price: float,
                  price_kwh_sen: float):
         """
@@ -81,11 +82,11 @@ class Panel:
     def save(self) -> bool:
         """Guarda en la base de datos el objeto correpondiente
         :return: Retorna True si el objeto esta validado correctamente"""
-        if not self.exist() and self.validate():
+        if self.validate():
             db = DbConnection()
             db.connect()
 
-            query = """INSERT INTO panel (panel_id, peak_power, cell_material, area, price, price_kwh_sen) 
+            query = """INSERT INTO Panel (panel_id, peak_power, cell_material, area, price, price_kwh_sen) 
                                                         VALUES (?, ?, ?, ?, ?, ?)"""
 
             db.execute_query(query, [self.__panel_id, self.__peak_power, self.__cell_material, self.__area,
@@ -96,33 +97,20 @@ class Panel:
 
     def delete(self) -> bool:
         """Elimina el objeto correspondiente"""
-        if self.exist():
-            db = DbConnection()
-            db.connect()
-
-            query = """SELECT name FROM system WHERE panel_id = ?"""
-            sys_names = db.execute_query_all(query, [self.__panel_id])
-
-            for i in range(len(sys_names)):
-                for j in range(len(sys_names[i])):
-                    db.delete_row('system_calc', "system_name", sys_names[i][j])
-                    db.delete_row('economic_calc', "system_name", sys_names[i][j])
-
-            db.delete_row('system', "place", self.__panel_id)
-            db.delete_row('panel', "panel_id", self.__panel_id)
-            return True
-        else:
-            return False
-
-    def exist(self) -> bool:
-        """Verifica si existe en la base de datos el objeto correspondiente y de ser asi retorna True"""
         db = DbConnection()
         db.connect()
 
-        query = """SELECT 1 FROM panel WHERE panel_id = ?"""
-        result = db.execute_query_one(query, [self.__panel_id])
+        query = """SELECT name FROM System WHERE panel_id = ?"""
+        sys_names = db.execute_query_all(query, [self.__panel_id])
 
-        return result == (1,)
+        for i in range(len(sys_names)):
+            for j in range(len(sys_names[i])):
+                db.delete_row('SystemCalc', "system_name", sys_names[i][j])
+                db.delete_row('EconomicCalc', "system_name", sys_names[i][j])
+
+        db.delete_row('System', "place", self.__panel_id)
+        db.delete_row('Panel', "panel_id", self.__panel_id)
+        return True
 
     def validate(self) -> bool:
         """Valida si los datos numericos son correctos"""
@@ -136,7 +124,7 @@ class Panel:
     def get_system(self) -> list[System]:
         """Devuelve los sistemas donde se utiliza este objeto en una lista de objetos tipo sistema"""
         aux_list = list()
-        query = f'SELECT * FROM system WHERE panel_id = ?'
+        query = f'SELECT * FROM System WHERE panel_id = ?'
 
         db = DbConnection()
         db.connect()
@@ -145,6 +133,7 @@ class Panel:
         for i in range(len(result)):
             name, id_panel, place, progress, description, to_south = result[i]
             new_system = System(name, id_panel, place, progress, bool(to_south))
+            new_system.description = description
             aux_list.append(new_system)
 
         return aux_list

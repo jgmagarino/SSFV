@@ -30,8 +30,20 @@ def get_technology(material) -> Technology:
 
     db = DbConnection()
     db.connect()
+    if exist_techno(material):
+        result = db.execute_query_one(query, [material])
+        material, surface = result
+        tech = Technology(material, surface)
+        return tech
+    return -1
+
+
+def exist_techno(material: str):
+    """Verifica si existe en la base de datos  el objeto tecnologia y de ser asi retorna True"""
+    db = DbConnection()
+    db.connect()
+
+    query = """SELECT 1 FROM Technology WHERE material = ?"""
     result = db.execute_query_one(query, [material])
 
-    material, surface = result
-    tech = Technology(material, surface)
-    return tech
+    return result == (1,)
