@@ -1,4 +1,5 @@
 import re
+from src.modules.panel_module import Panel
 from src.database.db_connection import DbConnection
 
 
@@ -102,3 +103,20 @@ class Technology:
         if num1 < num2:
             return tuple([num1, num2])
         return tuple([num2, num1])
+    
+    def get_panels(self):
+            """Devuelve los panels donde se utiliza este objeto en una lista de objetos tipo panel"""
+            aux_list = list()
+            query = f'SELECT * FROM Panel WHERE cell_material = ?'
+
+            db = DbConnection()
+            db.connect()
+            result = db.execute_query_all(query, [self.__technology])
+
+            for i in range(len(result)):
+                id_panel, peak_power, cell_material, area, price, price_kwh_sen = result[i]
+                panel = Panel(id_panel, peak_power, cell_material, area, price, price_kwh_sen)
+                
+                aux_list.append(panel)
+
+            return aux_list

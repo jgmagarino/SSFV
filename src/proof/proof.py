@@ -18,6 +18,7 @@ tech = Technology('silicio monocristalino', '7 - 9')  # Creando el objeto tecnol
 tech.save()  # Guardando el objeto tecnologia
 tech.validate()  # Validando el objeto tecnologia
 exist_techno(tech.technology)  # Verificando que existe el objeto tecnologia
+print(tech.get_panels()) # Obteniendo los paneles donde se utiliza este objeto en forma de lista de tipo panel
 # tech.delete() # Eliminando el objeto tecnologia
 
 
