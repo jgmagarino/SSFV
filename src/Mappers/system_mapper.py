@@ -24,7 +24,7 @@ def get_all_systems() -> list[System]:
     return aux_list
 
 
-def get_system(name):
+def get_system(name) -> System | int:
     """
     Devuelve el sistema con el nombre especificado de la base de datos y si no lo encuentra devuelve -1
     """

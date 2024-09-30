@@ -23,7 +23,7 @@ def get_all_hps() -> list[HSP]:
     return aux_list
 
 
-def get_hsp(place: str):
+def get_hsp(place: str) -> HSP | int:
     """
     Devuelve la hora solar pico en el lugar especificado de la base de datos y si no lo encuentra devuelve -1
     """

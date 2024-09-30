@@ -34,7 +34,7 @@ def get_all_sys_calc() -> list[SystemCalc]:
     return aux_list
 
 
-def get_sys_calc(sys_name: str):
+def get_sys_calc(sys_name: str) -> SystemCalc | int:
     """Devuelve los calculos de acuerdo al nombre del sistema de la base de datos y si no existe el sistema devuelve -1"""
     query = f'SELECT * FROM SystemCalc WHERE system_name = ?'
     query1 = f'SELECT * FROM System WHERE name = ?'
@@ -100,7 +100,7 @@ def get_all_sys_eco_cal() -> list[EconomicCalc]:
     return aux_list
 
 
-def get_eco_calc(sys_name: str):
+def get_eco_calc(sys_name: str) -> EconomicCalc | int:
     """
     Devuelve los calculos economicos de acuerdo al nombre del sistema y si el sistema no existe devuelve -1
     """

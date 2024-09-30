@@ -22,7 +22,7 @@ def get_all_panels() -> list[Panel]:
     return aux_list
 
 
-def get_panel(panel_id: str):
+def get_panel(panel_id: str) -> Panel | int:
     """
     Devuelve el panel con el id especificado de la base de datos y si no lo encuentra devuelve -1
     """

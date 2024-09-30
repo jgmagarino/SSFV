@@ -23,7 +23,7 @@ def get_all_technologies() -> list[Technology]:
     return aux_list
 
 
-def get_technology(material) -> Technology:
+def get_technology(material) -> Technology | int:
     """
         Devuelve la tecnologia con el material especificado de la base de datos
     """
