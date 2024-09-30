@@ -80,11 +80,11 @@ class System:
         db = DbConnection()
         db.connect()
 
-        query = """INSERT INTO System (name, panel_id, place, progress, description, to_south) 
-                                                        VALUES (?, ?, ?, ?, ?, ?)"""
+        query = """INSERT INTO System (name, panel_id, place, progress, description, to_south, visible) 
+                                                        VALUES (?, ?, ?, ?, ?, ?, ?)"""
 
         db.execute_query(query, [self.__name, self.__panel_id, self.__place,
-                                self.__progress, self.__description, str(self.__to_south)])
+                                self.__progress, self.__description, str(self.__to_south), self.__visible])
         return True
 
     def delete(self) -> bool:
@@ -96,3 +96,8 @@ class System:
         db.delete_row('EconomicCalc', "system_name", self.__name)
         db.delete_row('System', "name", self.__name)
         return True
+    
+    def validate(self):
+        ch1 = True if self.__visible == 0 or self.__visible == 1 else False
+        return ch1
+    

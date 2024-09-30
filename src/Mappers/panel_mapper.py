@@ -14,8 +14,9 @@ def get_all_panels() -> list[Panel]:
     result = db.execute_query_all(query)
 
     for i in range(len(result)):
-        id_panel, peak_power, cell_material, area, price, price_kwh_sen = result[i]
+        id_panel, peak_power, cell_material, area, price, price_kwh_sen, visible = result[i]
         new_panel = Panel(id_panel, peak_power, cell_material, area, price, price_kwh_sen)
+        new_panel.visible = visible
         aux_list.append(new_panel)
 
     return aux_list
@@ -31,8 +32,9 @@ def get_panel(panel_id: str):
     db.connect()
     if exist_panel(panel_id):
         result = db.execute_query_one(query, [panel_id])
-        id_panel, peak_power, cell_material, area, price, price_kwh_sen = result
+        id_panel, peak_power, cell_material, area, price, price_kwh_sen, visible = result
         panel = Panel(id_panel, peak_power, cell_material, area, price, price_kwh_sen)
+        panel.visible = visible
         return panel
     return -1
 

@@ -40,9 +40,9 @@ class HSP:
             db = DbConnection()
             db.connect()
 
-            query = """INSERT INTO Hsp (place, value) VALUES (?, ?)"""
+            query = """INSERT INTO Hsp (place, value, visible) VALUES (?, ?, ?)"""
 
-            db.execute_query(query, [self.__place, self.__value])
+            db.execute_query(query, [self.__place, self.__value, self.__visible])
             return True
         else:
             return False
@@ -66,7 +66,9 @@ class HSP:
 
     def validate(self) -> bool:
         """Valida si los datos numericos son correctos"""
-        if isinstance(self.__value, (int, float)) and self.__value > 0:
+        check1 = isinstance(self.__value, (int, float)) and self.__value > 0
+        check2 = True if self.__visible == 0 or self.__visible == 1 else False
+        if check1 and check2:
             return True
         return False
 
@@ -80,9 +82,10 @@ class HSP:
         result = db.execute_query_all(query, [self.__place])
 
         for i in range(len(result)):
-            name, id_panel, place, progress, description, to_south = result[i]
+            name, id_panel, place, progress, description, to_south, visible = result[i]
             new_system = System(name, id_panel, place, progress, bool(to_south))
             new_system.description = description
+            new_system.visible = visible
             aux_list.append(new_system)
 
         return aux_list

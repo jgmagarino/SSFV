@@ -86,11 +86,11 @@ class Panel:
             db = DbConnection()
             db.connect()
 
-            query = """INSERT INTO Panel (panel_id, peak_power, cell_material, area, price, price_kwh_sen) 
-                                                        VALUES (?, ?, ?, ?, ?, ?)"""
+            query = """INSERT INTO Panel (panel_id, peak_power, cell_material, area, price, price_kwh_sen, visible) 
+                                                        VALUES (?, ?, ?, ?, ?, ?, ?)"""
 
             db.execute_query(query, [self.__panel_id, self.__peak_power, self.__cell_material, self.__area,
-                                     self.__price, self.__price_kwh_sen])
+                                     self.__price, self.__price_kwh_sen, self.__visible])
             return True
         else:
             return False
@@ -118,8 +118,9 @@ class Panel:
         ch2 = isinstance(self.__price, (int, float)) and self.__price > 0
         ch3 = isinstance(self.__area, (int, float)) and self.__area > 0
         ch4 = isinstance(self.__price_kwh_sen, (int, float)) and self.__price_kwh_sen > 0
+        ch5 = True if self.__visible == 0 or self.__visible == 1 else False
 
-        return ch1 and ch2 and ch3 and ch4
+        return ch1 and ch2 and ch3 and ch4 and ch5
 
     def get_system(self) -> list[System]:
         """Devuelve los sistemas donde se utiliza este objeto en una lista de objetos tipo sistema"""
@@ -131,9 +132,10 @@ class Panel:
         result = db.execute_query_all(query, [self.__panel_id])
 
         for i in range(len(result)):
-            name, id_panel, place, progress, description, to_south = result[i]
+            name, id_panel, place, progress, description, to_south, visible = result[i]
             new_system = System(name, id_panel, place, progress, bool(to_south))
             new_system.description = description
+            new_system.visible = visible
             aux_list.append(new_system)
 
         return aux_list

@@ -15,8 +15,9 @@ def get_all_technologies() -> list[Technology]:
     result = db.execute_query_all(query)
 
     for i in range(len(result)):
-        technology, sur_face = result[i]
+        technology, sur_face, visible = result[i]
         new_technology = Technology(technology, sur_face)
+        new_technology.visible = visible
         aux_list.append(new_technology)
 
     return aux_list
@@ -32,8 +33,9 @@ def get_technology(material) -> Technology:
     db.connect()
     if exist_techno(material):
         result = db.execute_query_one(query, [material])
-        material, surface = result
+        material, surface, visible = result
         tech = Technology(material, surface)
+        tech.visible = visible
         return tech
     return -1
 

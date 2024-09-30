@@ -50,9 +50,9 @@ class Technology:
             db = DbConnection()
             db.connect()
 
-            query = """INSERT INTO Technology (material, surface) VALUES (?, ?)"""
+            query = """INSERT INTO Technology (material, surface, visible) VALUES (?, ?, ?)"""
 
-            db.execute_query(query, [self.__technology, self.__surface])
+            db.execute_query(query, [self.__technology, self.__surface, self.__visible])
             return True
         else:
             return False
@@ -86,7 +86,10 @@ class Technology:
 
     def validate(self) -> bool:
         """Valida el objeto correspondiente y de ser valido retorna True"""
-        if re.match(r"^\d+(\.\d+)?-\d+(\.\d+)?$", self.__surface):
+        check1 = re.match(r"^\d+(\.\d+)?-\d+(\.\d+)?$", self.__surface)
+        check2 = True if self.__visible == 0 or self.__visible == 1 else False
+        
+        if check1 and check2:
             return True
         else:
             return False
@@ -114,8 +117,9 @@ class Technology:
             result = db.execute_query_all(query, [self.__technology])
 
             for i in range(len(result)):
-                id_panel, peak_power, cell_material, area, price, price_kwh_sen = result[i]
+                id_panel, peak_power, cell_material, area, price, price_kwh_sen, visible = result[i]
                 panel = Panel(id_panel, peak_power, cell_material, area, price, price_kwh_sen)
+                panel.visible = visible
                 
                 aux_list.append(panel)
 

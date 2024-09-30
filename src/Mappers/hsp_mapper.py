@@ -15,8 +15,9 @@ def get_all_hps() -> list[HSP]:
     result = db.execute_query_all(query)
 
     for i in range(len(result)):
-        place, value = result[i]
+        place, value, visible= result[i]
         new_hsp = HSP(place, value)
+        new_hsp.visible = visible
         aux_list.append(new_hsp)
 
     return aux_list
@@ -32,8 +33,9 @@ def get_hsp(place: str):
     db.connect()
     if exist_hsp(place):
         result = db.execute_query_one(query, [place])
-        place, value = result
+        place, value, visible = result
         hsp = HSP(place, value)
+        hsp.visible = visible
         return hsp
     return -1
 
