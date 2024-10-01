@@ -5,6 +5,7 @@ from src.modules.system_module import System
 
 class EconomicCalc:
     """Clase que referencia a los calculos economicos del sistema"""
+
     def __init__(self, system: System, system_calc: SystemCalc):
         self.__system = system
         self.__cost = 0
@@ -95,7 +96,7 @@ class EconomicCalc:
                                                     VALUES (?, ?, ?, ?)"""
 
         db.execute_query(query, [self.__system.name, self.__cost,
-                                self.__income, self.__recovery_period])
+                                 self.__income, self.__recovery_period])
         return True
 
     def delete(self):

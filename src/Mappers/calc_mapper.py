@@ -19,8 +19,9 @@ def get_all_sys_calc() -> list[SystemCalc]:
     for i in range(len(result)):
         sys_name, useful_energy, num_panels, area, peak_power = result[i]
         data = db.execute_query_one(query1, [sys_name])
-        name, id_panel, place, progress, description, to_south = data
+        name, id_panel, place, progress, description, to_south, visible = data
         new_system = System(name, id_panel, place, progress, bool(to_south))
+        new_system.visible = visible
         new_system.description = description
 
         new_calc = SystemCalc(new_system)
@@ -47,9 +48,10 @@ def get_sys_calc(sys_name: str) -> SystemCalc | int:
         system_name, useful_energy, number_of_panels, area, peak_power = result
 
         data = db.execute_query_one(query1, [system_name])
-        name, id_panel, place, progress, description, to_south = data
+        name, id_panel, place, progress, description, to_south, visible = data
         new_system = System(name, id_panel, place, progress, bool(to_south))
         new_system.description = description
+        new_system.visible = visible
 
         new_calc = SystemCalc(new_system)
         new_calc.useful_energy = useful_energy
@@ -78,8 +80,9 @@ def get_all_sys_eco_cal() -> list[EconomicCalc]:
         sys_name, cost, income, recovery_period = result[i]
 
         data = db.execute_query_one(query1, [sys_name])
-        name, id_panel, place, progress, description, to_south = data
+        name, id_panel, place, progress, description, to_south, visible = data
         new_system = System(name, id_panel, place, progress, bool(to_south))
+        new_system.visible = visible
         new_system.description = description
 
         data1 = db.execute_query_one(query2, [sys_name])
@@ -116,9 +119,10 @@ def get_eco_calc(sys_name: str) -> EconomicCalc | int:
         system_name, cost, income, recovery_period = result
 
         data = db.execute_query_one(query1, [system_name])
-        name, id_panel, place, progress, description, to_south = data
+        name, id_panel, place, progress, description, to_south, visible = data
         new_system = System(name, id_panel, place, progress, bool(to_south))
         new_system.description = description
+        new_system.visible = visible
 
         data1 = db.execute_query_one(query2, [system_name])
         syst_name, useful_energy, num_panels, area, peak_power = data1
