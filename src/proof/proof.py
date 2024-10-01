@@ -27,14 +27,14 @@ hsp = HSP('cienfuegos', 6.0)  # Creando el objeto Hora Solar Pico
 # hsp.validate()  # Validando el objeto hsp
 # exist_hsp(hsp.place)  # Verificando que existe el objeto hsp
 # hsp.delete() # Eliminando el objeto hsp
-print(hsp.get_system())  # Obteniendo los sistemas donde se utiliza este objeto en forma de lista de sistemas
+print(hsp.get_systems())  # Obteniendo los sistemas donde se utiliza este objeto en forma de lista de sistemas
 
 panel = Panel("mejor", 245, 'silicio monocristalino', 2.3, 234, 32)  # Creando el objeto panel
 # panel.save()  # Guardando el objeto panel
 # panel.validate()  # Validando el objeto panel
 # exist_panel(panel.panel_id)  # Verificando que existe el objeto panel
 # panel.delete() # Eliminando el objeto panel
-print(panel.get_system())  # Obteniendo los sistemas donde se utiliza este objeto en forma de lista de sistemas
+print(panel.get_systems())  # Obteniendo los sistemas donde se utiliza este objeto en forma de lista de sistemas
 
 system = System("primero", "mejor", "cienfuegos", 1, True)  # Creando el objeto sistema
 # system.save()  # Guardando el objeto sistema

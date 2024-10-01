@@ -122,7 +122,7 @@ class Panel:
 
         return ch1 and ch2 and ch3 and ch4 and ch5
 
-    def get_system(self) -> list[System]:
+    def get_systems(self) -> list[System]:
         """Devuelve los sistemas donde se utiliza este objeto en una lista de objetos tipo sistema"""
         aux_list = list()
         query = f'SELECT * FROM System WHERE panel_id = ?'

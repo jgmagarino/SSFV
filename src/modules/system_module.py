@@ -100,7 +100,7 @@ class System:
         db.delete_row('System', "name", self.__name)
         return True
     
-    def validate(self):
+    def validate(self) -> bool:
         ch1 = True if self.__visible == 0 or self.__visible == 1 else False
         return ch1
     
