@@ -76,16 +76,19 @@ class System:
         self.__visible = value
 
     def save(self) -> bool:
-        """Guarda en la base de datos el objeto correpondiente"""
-        db = DbConnection()
-        db.connect()
+        """Guarda en la base de datos el objeto correpondiente
+        :return: Retorna True si el objeto esta validado correctamente"""
+        if self.validate():
+            db = DbConnection()
+            db.connect()
 
-        query = """INSERT INTO System (name, panel_id, place, progress, description, to_south, visible) 
+            query = """INSERT INTO System (name, panel_id, place, progress, description, to_south, visible) 
                                                         VALUES (?, ?, ?, ?, ?, ?, ?)"""
 
-        db.execute_query(query, [self.__name, self.__panel_id, self.__place,
+            db.execute_query(query, [self.__name, self.__panel_id, self.__place,
                                 self.__progress, self.__description, str(self.__to_south), self.__visible])
-        return True
+            return True
+        return False
 
     def delete(self) -> bool:
         """Elimina en la base de datos el objeto correpondiente """
