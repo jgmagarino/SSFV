@@ -5,6 +5,7 @@ from src.modules.panel_module import Panel
 from src.modules.system_module import System
 from src.modules.technology_module import Technology
 from style import text_and_bg, unit_of_measurement, frame
+from views.system_view import (SystemView, StaticSystem)
 
 
 def show_row(atr: str, info, unit=None):
@@ -45,7 +46,7 @@ def get_details(entity: HSP | Panel):
     if isinstance(entity, Technology):
         return ft.Column([
             show_row("Area requerida: ", entity.surface),
-        ]), True
+        ]), False if not used_systems else True
 
 
 class ShowEntity(ft.Container):
@@ -80,7 +81,7 @@ class ShowEntity(ft.Container):
             ft.Divider(height=1),
             ft.Row([ft.ElevatedButton("Detalles", on_click=self.show_details),
                     ft.ElevatedButton("Eliminar", bgcolor=ft.colors.RED, on_click=self.remove
-                                      , disabled=False if used_systems else True),],
+                                      , disabled=True if used_systems else False),],
                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
 
@@ -114,9 +115,13 @@ class ShowSystem(ft.Container):
         self.border = ft.border.all(1, ft.colors.GREY)
         self.width = 300
 
-        go_to_details = ft.ElevatedButton("Ver detalles")
+        go_to_details = ft.ElevatedButton("Ver detalles", on_click=self.show_system)
 
         self.content = ft.Column([
             ft.Text(system.name, size=20),
             go_to_details,
         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+
+    def show_system(self, e):
+        StaticSystem().set_system(self.system)
+        self.page.go('/system_view')
