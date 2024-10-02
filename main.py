@@ -5,6 +5,7 @@ from views.create_panel import CreatePanel
 from views.create_system import CreateSystem
 from views.create_technology import CreateTechnology
 from views.home import HomeView
+from views.system_view import SystemView
 
 
 def main(page: ft.Page):
@@ -25,6 +26,12 @@ def main(page: ft.Page):
 
         if page.route == 'back':
             page.views.pop()
+
+
+        if page.route == '/system_view':
+            page.views.append(
+                SystemView()
+            )
 
         if page.route == "/create_system":
             page.views.append(
