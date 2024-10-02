@@ -41,6 +41,22 @@ class Technology:
     def visible(self, value):
         self.__visible = value
 
+    # todo solucion provisional, hay que pensar una forma de gestionar esto mejor
+    def get_min_surface_req(self):
+        """
+        :return: superficie minima requerida por esta recnologia para generar un kw
+        """
+
+        aux_string = ""
+        for i in self.__surface:
+            if i == "-" or i == " ":
+                break
+            else:
+                aux_string += i
+
+        return float(aux_string)
+
+
     def save(self) -> bool:
         """
         Guarda en la base de datos el objeto correpondiente

@@ -1,4 +1,5 @@
 import flet as ft
+from flet_core.colors import BLUE_50
 
 from components.other_components import (EntityInfo, WhereUsed)
 from src.Mappers.system_mapper import get_all_systems
@@ -16,6 +17,7 @@ class DrawerHome(ft.NavigationDrawer):
         super().__init__()
 
         self.position = ft.NavigationDrawerPosition.END
+        self.indicator_color = ft.colors.BLUE_100
 
         self.controls = [
             ft.Container(height=12),
@@ -38,16 +40,12 @@ class DrawerHome(ft.NavigationDrawer):
                 label="Tecnologias",
                 icon=ft.icons.DEVICES,
             ),
-            ft.Divider(thickness=2),
+            ft.Divider(height=1),
             ft.NavigationDrawerDestination(
-                icon=ft.icons.MAIL_OUTLINED,
-                label="Ayuda",
-                selected_icon=ft.icons.MAIL,
-            ),
-            ft.NavigationDrawerDestination(
-                icon=ft.icons.SETTINGS_OUTLINED,
-                label="Configuracion",
-                selected_icon=ft.icons.SETTINGS_ROUNDED,
+                icon_content=ft.Row([ft.Icon(name=ft.icons.DELETE_OUTLINE, color=ft.colors.RED),
+                                     ft.Text("Papelera", color=ft.colors.RED)]),
+                selected_icon_content=ft.Row([ft.Icon(name=ft.icons.DELETE, color=ft.colors.RED),
+                                     ft.Text("Papelera", color=ft.colors.RED)]),
             ),
         ]
 
@@ -78,10 +76,17 @@ class GeneralContent(ft.Container):
     def __init__(self, type_entity: int):
         super().__init__()
 
+        self.type_entity = type_entity
+
+        "-----------"
+        "COMPONENTES"
+        "-----------"
+
+        self.selected_style = ft.ButtonStyle(bgcolor=ft.colors.BLUE, color=ft.colors.WHITE)
+        self.not_selected_style = ft.ButtonStyle(bgcolor=ft.colors.GREY, color=ft.colors.BLACK)
+
         # Lista de elementos que se mostraran
         self.miniature_list = None
-
-        self.type_entity = type_entity
 
         self.all_button = ft.ElevatedButton("todos", on_click=lambda e: self.change_see_option(1))
         self.used_button = ft.ElevatedButton("usados", on_click=lambda e: self.change_see_option(2))
@@ -89,9 +94,13 @@ class GeneralContent(ft.Container):
 
         # Priemero aparece el boton de mostrar todos seleccionado
         # Este puede variar a mostrar los elementos usados en algun sistema o los que no son usados
-        self.all_button.bgcolor = ft.colors.BLUE_300
-        self.used_button.bgcolor = ft.colors.WHITE54
-        self.not_used_button.bgcolor = ft.colors.WHITE54
+        self.all_button.style = self.selected_style
+        self.used_button.style = self.not_selected_style
+        self.not_used_button.style = self.not_selected_style
+
+        "----------"
+        "ESTRUCTURA"
+        "----------"
 
         # Agrupo en una fila las opciones de visualizacion de los elementos
         self.see_options = ft.Row([self.all_button, self.used_button, self.not_used_button], wrap=True)
@@ -102,8 +111,7 @@ class GeneralContent(ft.Container):
         self.get_entities()
 
         if self.miniature_list:
-            self.content = ft.Row(controls=[self.see_options, ft.Divider(height=1)] + self.miniature_list,
-                                  wrap=True, spacing=50, alignment=ft.MainAxisAlignment.CENTER)
+            self.content = ft.Column(controls=[self.see_options, ft.Divider(height=1)] + self.miniature_list)
         else:
             self.content = ft.Text("Aun no hay elementos de este tipo registrados")
 
@@ -116,27 +124,27 @@ class GeneralContent(ft.Container):
 
         if get == "all":
             if self.type_entity == 0:
-                self.miniature_list = [GeneralMiniature(i) for i in get_all_systems()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_systems() if i.visible == 1]
 
             if self.type_entity == 1:
-                self.miniature_list = [GeneralMiniature(i) for i in get_all_panels()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_panels() if i.visible == 1]
 
             if self.type_entity == 2:
-                self.miniature_list = [GeneralMiniature(i) for i in get_all_hps()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_hps() if i.visible == 1]
 
             if self.type_entity == 3:
-                self.miniature_list = [GeneralMiniature(i) for i in get_all_technologies()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_technologies() if i.visible == 1]
 
         if get == "used":
             # todo Cambiar para que solo muestre los que estan usados
             if self.type_entity == 1:
-                self.miniature_list = [GeneralMiniature(i) for i in get_all_panels()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_panels() if i.visible == 1]
 
             if self.type_entity == 2:
-                self.miniature_list = [GeneralMiniature(i) for i in get_all_hps()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_hps() if i.visible == 1]
 
             if self.type_entity == 3:
-                self.miniature_list = [GeneralMiniature(i) for i in get_all_technologies()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_technologies() if i.visible == 1]
 
             if not self.miniature_list:
                 self.miniature_list = [ft.Text("No se a usado aun ningun elemento en algun sistema")]
@@ -144,13 +152,13 @@ class GeneralContent(ft.Container):
         if get == "not":
             # todo Cambiar para que solo muestre los que no estan usados
             if self.type_entity == 1:
-                self.miniature_list = [GeneralMiniature(i) for i in get_all_panels()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_panels() if i.visible == 1]
 
             if self.type_entity == 2:
-                self.miniature_list = [GeneralMiniature(i) for i in get_all_hps()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_hps() if i.visible == 1]
 
             if self.type_entity == 3:
-                self.miniature_list = [GeneralMiniature(i) for i in get_all_technologies()]
+                self.miniature_list = [GeneralMiniature(i) for i in get_all_technologies() if i.visible == 1]
 
             if not self.miniature_list:
                 self.miniature_list = [ft.Text("Todos los elementos se usan en almenos un sistema")]
@@ -158,30 +166,27 @@ class GeneralContent(ft.Container):
 
     def change_see_option(self, selected: int):
         if selected == 1:
-            self.all_button.bgcolor = ft.colors.BLUE_300
-            self.used_button.bgcolor = ft.colors.WHITE54
-            self.not_used_button.bgcolor = ft.colors.WHITE54
+            self.all_button.style = self.selected_style
+            self.used_button.style = self.not_selected_style
+            self.not_used_button.style = self.not_selected_style
             self.get_entities()
 
         if selected == 2:
-            self.all_button.bgcolor = ft.colors.WHITE54
-            self.used_button.bgcolor = ft.colors.BLUE_300
-            self.not_used_button.bgcolor = ft.colors.WHITE54
+            self.all_button.style = self.not_selected_style
+            self.used_button.style = self.selected_style
+            self.not_used_button.style = self.not_selected_style
             self.get_entities('used')
 
         if selected == 3:
-            self.all_button.bgcolor = ft.colors.WHITE54
-            self.used_button.bgcolor = ft.colors.WHITE54
-            self.not_used_button.bgcolor = ft.colors.BLUE_300
+            self.all_button.style = self.not_selected_style
+            self.used_button.style = self.not_selected_style
+            self.not_used_button.style = self.selected_style
             self.get_entities('not')
 
-        self.content = ft.Row(controls=[self.see_options, ft.Divider(height=1)] + self.miniature_list,
-                              wrap=True, spacing=50, alignment=ft.MainAxisAlignment.CENTER)
+        self.content = ft.Column(controls=[self.see_options, ft.Divider(height=1)] + self.miniature_list)
 
-        self.all_button.update()
-        self.used_button.update()
-        self.not_used_button.update()
         self.update()
+
 
 class GeneralMiniature(ft.Container):
     def __init__(self, entity: System | Panel | HSP | Technology):
@@ -284,6 +289,7 @@ class GeneralMiniature(ft.Container):
 
     def delete(self, e):
 
-        self.entity.delete()
+        self.entity.visible = 0
+        # todo hace falta un metodo para actualizar el estado de la entidad
         self.visible = False
         self.update()
