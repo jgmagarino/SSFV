@@ -5,6 +5,7 @@ from src.modules.system_module import System
 
 class EconomicCalc:
     """Clase que referencia a los calculos economicos del sistema"""
+
     def __init__(self, system: System, system_calc: SystemCalc):
         self.__system = system
         self.__cost = 0
@@ -52,8 +53,8 @@ class EconomicCalc:
         db = DbConnection()
         db.connect()
 
-        query1 = """SELECT price FROM panel WHERE panel_id = ?"""
-        query2 = """SELECT number_of_panel FROM system_calc WHERE system_name = ?"""
+        query1 = """SELECT price FROM Panel WHERE panel_id = ?"""
+        query2 = """SELECT number_of_panel FROM SystemCalc WHERE system_name = ?"""
 
         price = db.execute_query_one(query1, [panel_id])[0]
         number_of_panel = db.execute_query_one(query2, [sys_name])[0]
@@ -70,8 +71,8 @@ class EconomicCalc:
         db = DbConnection()
         db.connect()
 
-        query1 = """SELECT price_kwh_sen FROM panel WHERE panel_id = ?"""
-        query2 = """SELECT useful_energy FROM system_calc WHERE system_name = ?"""
+        query1 = """SELECT price_kwh_sen FROM Panel WHERE panel_id = ?"""
+        query2 = """SELECT useful_energy FROM SystemCalc WHERE system_name = ?"""
 
         price_kwh_sen = db.execute_query_one(query1, [panel_id])[0]
         useful_energy = db.execute_query_one(query2, [sys_name])[0]
@@ -88,36 +89,20 @@ class EconomicCalc:
 
     def save(self):
         """Guarda en la base de datos el objeto correpondiente"""
-        if not self.exist():
-            db = DbConnection()
-            db.connect()
-
-            query = """INSERT INTO economic_calc (system_name, cost, income, recovery_period) 
-                                                        VALUES (?, ?, ?, ?)"""
-
-            db.execute_query(query, [self.__system.name, self.__cost,
-                                     self.__income, self.__recovery_period])
-            return True
-        else:
-            return False
-
-    def delete(self):
-        """Elimina el objeto correspondiente"""
-        if self.exist():
-            db = DbConnection()
-            db.connect()
-
-            db.delete_row('economic_calc', "system_name", self.__system.name)
-            return True
-        else:
-            return False
-
-    def exist(self):
-        """Verifica si existe en la base de datos el objeto correspondiente y de ser asi retorna True"""
         db = DbConnection()
         db.connect()
 
-        query = """SELECT 1 FROM economic_calc WHERE system_name = ?"""
-        result = db.execute_query_one(query, [self.__system.name])
+        query = """INSERT INTO EconomicCalc (system_name, cost, income, recovery_period) 
+                                                    VALUES (?, ?, ?, ?)"""
 
-        return result == (1,)
+        db.execute_query(query, [self.__system.name, self.__cost,
+                                 self.__income, self.__recovery_period])
+        return True
+
+    def delete(self):
+        """Elimina el objeto correspondiente"""
+        db = DbConnection()
+        db.connect()
+
+        db.delete_row('EconomicCalc', "system_name", self.__system.name)
+        return True
