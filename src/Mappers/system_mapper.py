@@ -16,7 +16,7 @@ def get_all_systems() -> list[System]:
 
     for i in range(len(result)):
         name, id_panel, place, progress, description, to_south = result[i]
-        new_system = System(name, id_panel, place, progress, bool(to_south))
+        new_system = System(name, id_panel, place, progress, bool(to_south), description)
         aux_list.append(new_system)
 
     return aux_list
@@ -33,5 +33,5 @@ def get_system(name) -> System:
     result = db.execute_query_one(query, [name])
 
     name, panel_id, place, progress, description, to_south = result
-    system = System(name, panel_id, place, progress, bool(to_south))
+    system = System(name, panel_id, place, progress, bool(to_south), description)
     return system

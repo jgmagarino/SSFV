@@ -3,7 +3,8 @@ from src.database.db_connection import DbConnection
 
 class System:
     """Clase que referencia al sistema"""
-    def __init__(self, name: str, panel_id: str, place: str, progress: int = 1, to_south: bool = False):
+    def __init__(self, name: str, panel_id: str, place: str, progress: int = 1,
+                 to_south: bool = False, description: str = 'no hay descripcion'):
         """
         :param name: Referencia al nombre del sistema
         :param panel_id: Referencia al id del panel utilizado en el sistema
@@ -15,7 +16,7 @@ class System:
         self.__name = str(name)
         self.__panel_id = str(panel_id)
         self.__place = str(place)
-        self.__description = 'no hay descripcion'
+        self.__description = description
         self.__progress = progress
         self.__visible = 1
 
