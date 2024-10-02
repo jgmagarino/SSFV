@@ -218,8 +218,8 @@ class Calc(ft.Container):
 
             # Crea el sistema y guarda en la base de datos
 
-            system = System(self.name.value, self.panel.panel_id, self.hsp_place, to_south=self.to_south)
-            system.description = self.description.value
+            system = System(self.name.value, self.panel.panel_id, self.hsp_place,
+                            to_south=self.to_south, description=self.description.value)
             system.save()
 
             system_calc = SystemCalc(system)
