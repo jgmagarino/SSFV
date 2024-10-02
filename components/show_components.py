@@ -1,5 +1,4 @@
 import flet as ft
-from annotated_types import Unit
 
 from src.modules.hsp_module import HSP
 from src.modules.panel_module import Panel
@@ -15,18 +14,23 @@ def get_details(entity: HSP | Panel):
 
     frame_systems = ft.Text("")
 
+    used_systems = []
+
     if not isinstance(entity, Technology):
+
+        used_systems = entity.get_system()
+
         frame_systems = frame(ft.Column( [text_and_bg("Se usa en: ")] +
-                                 [text_and_bg(i.name, ft.colors.GREY) for i in entity.get_system()]))
+                                 [text_and_bg(i.name, ft.colors.GREY) for i in used_systems]))
         frame_systems.border = ft.border.all(1, ft.colors.GREY)
 
     if isinstance(entity, HSP):
         return ft.Column([
-            show_row("Lugar: ", entity.place),
-            show_row("Value: ", entity.value),
+            show_row("Value: ", entity.value, "h/día"),
             ft.Divider(height=1),
             frame_systems
-        ])
+        ]), False if not used_systems else True
+
     if isinstance(entity, Panel):
         return ft.Column([
             show_row("Potencia pico: ", entity.peak_power, "W"),
@@ -36,12 +40,12 @@ def get_details(entity: HSP | Panel):
             show_row("Precio del kwh SEN: ", entity.price_kwh_sen, "cup"),
             ft.Divider(height=1),
             frame_systems
-        ])
+        ]), False if not used_systems else True
+
     if isinstance(entity, Technology):
         return ft.Column([
-            show_row("Tecnologia: ", entity.technology),
             show_row("Area requerida: ", entity.surface),
-        ])
+        ]), True
 
 
 class ShowEntity(ft.Container):
@@ -54,9 +58,11 @@ class ShowEntity(ft.Container):
         self.padding = 10
         self.border_radius = 10
         self.border = ft.border.all(1, ft.colors.GREY)
-        self.width = 250
+        self.width = 300
 
-        self.more_info = ft.Row([get_details(entity)],
+        details, used_systems = get_details(entity)
+
+        self.more_info = ft.Row([details],
                                 scroll=ft.ScrollMode.ADAPTIVE, visible=False)
 
         title = ""
@@ -73,7 +79,8 @@ class ShowEntity(ft.Container):
             self.more_info,
             ft.Divider(height=1),
             ft.Row([ft.ElevatedButton("Detalles", on_click=self.show_details),
-                    ft.ElevatedButton("Eliminar", bgcolor=ft.colors.RED, on_click=self.remove)],
+                    ft.ElevatedButton("Eliminar", bgcolor=ft.colors.RED, on_click=self.remove
+                                      , disabled=False if used_systems else True),],
                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
 
@@ -93,7 +100,7 @@ class ShowEntity(ft.Container):
 
         self.entity.visible = 0
         self.entity.delete()
-        self.entity.save()
+
 
 class ShowSystem(ft.Container):
     def __init__(self, system: System):
@@ -105,7 +112,7 @@ class ShowSystem(ft.Container):
         self.padding = 10
         self.border_radius = 10
         self.border = ft.border.all(1, ft.colors.GREY)
-        self.width = 250
+        self.width = 300
 
         go_to_details = ft.ElevatedButton("Ver detalles")
 

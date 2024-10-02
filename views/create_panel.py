@@ -66,7 +66,7 @@ class CreatePanel(ft.View):
 
         self.create = ft.ElevatedButton("Crear", bgcolor=ft.colors.BLUE_400, color=ft.colors.WHITE,
                                         on_click=self.insert)
-        self.cancelate = ft.ElevatedButton("Cancelar", on_click=lambda e: self.page.go('/'))
+        self.cancelate = ft.ElevatedButton("Cancelar", on_click=lambda e: self.page.go('back'))
 
         self.alert_txt = error_text("No puede haber ningun campo vacio")
 
@@ -107,22 +107,28 @@ class CreatePanel(ft.View):
         el error.
         """
 
-        is_correct, new_panel = self.validation_empty_filed()
+        new_panel = self.validation_empty_filed()
 
-        if is_correct:
-
-            self.page.go('/')
-
+        if isinstance(new_panel, Panel):
+            if new_panel.exist():
+                self.alert_txt.value = "Ya existe un panel con ese identificador"
+                self.alert_txt.visible = True
+                self.id_panel_tf.label_style = ft.TextStyle(color=ft.colors.RED_900)
+                self.id_panel_tf.border_color = ft.colors.RED
+            else:
+                new_panel.save()
+                self.page.go('back')
         else:
             self.alert_txt.value = new_panel
             self.alert_txt.visible = True
-            self.update()
+
+        self.update()
 
 
-    def validation_empty_filed(self) -> (bool, Panel | str):
+    def validation_empty_filed(self) -> Panel | str:
         """
         Se asegura de que los text filed no esten vacios
-        :return : una tupla (verdadero y la nueva hsp o falso y mensaje de error si hay algun campo vacio)
+        :return : el nuevo panel o un mensaje de error
         """
 
         id_panel: str = self.id_panel_tf.value
@@ -135,7 +141,7 @@ class CreatePanel(ft.View):
         if len(id_panel) == 0:
             self.id_panel_tf.label_style = ft.TextStyle(color=ft.colors.RED_900)
             self.id_panel_tf.border_color = ft.colors.RED
-            return False, "Debe definir un identificador para el panel"
+            return "Debe definir un identificador para el panel"
         else:
             self.id_panel_tf.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
             self.id_panel_tf.border_color = ft.colors.BLUE_400
@@ -143,7 +149,7 @@ class CreatePanel(ft.View):
         if cell_material is None:
             self.cell_material_dropdown.label_style = ft.TextStyle(color=ft.colors.RED_900)
             self.cell_material_dropdown.border_color = ft.colors.RED
-            return False, "Especifique el material de las celdas"
+            return "Especifique el material de las celdas"
         else:
             self.cell_material_dropdown.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
             self.cell_material_dropdown.border_color = ft.colors.BLUE_400
@@ -151,7 +157,7 @@ class CreatePanel(ft.View):
         if len(peak_power) == 0:
             self.peak_power_tf.label_style = ft.TextStyle(color=ft.colors.RED_900)
             self.peak_power_tf.border_color = ft.colors.RED
-            return False, "Que potencia pico tiene el panel?"
+            return "Que potencia pico tiene el panel?"
         else:
             self.peak_power_tf.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
             self.peak_power_tf.border_color = ft.colors.BLUE_400
@@ -159,7 +165,7 @@ class CreatePanel(ft.View):
         if len(price) == 0:
             self.price_tf.label_style = ft.TextStyle(color=ft.colors.RED_900)
             self.price_tf.border_color = ft.colors.RED
-            return False, "Cuanto cuesta el panel?"
+            return "Cuanto cuesta el panel?"
         else:
             self.price_tf.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
             self.price_tf.border_color = ft.colors.BLUE_400
@@ -167,7 +173,7 @@ class CreatePanel(ft.View):
         if len(area) == 0:
             self.area_tf.label_style = ft.TextStyle(color=ft.colors.RED_900)
             self.area_tf.border_color = ft.colors.RED
-            return False, "Que area ocupa cada panel?"
+            return "Que area ocupa cada panel?"
         else:
             self.area_tf.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
             self.area_tf.border_color = ft.colors.BLUE_400
@@ -175,12 +181,12 @@ class CreatePanel(ft.View):
         if len(price_kwh_sen) == 0:
             self.price_kwh_sen_tf.label_style=ft.TextStyle(color=ft.colors.RED_900)
             self.price_kwh_sen_tf.border_color=ft.colors.RED
-            return False, "price_kwh_sen:empty"
+            return "price_kwh_sen:empty"
         else:
             self.price_kwh_sen_tf.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
             self.price_kwh_sen_tf.border_color=ft.colors.BLUE_400
 
-        return True, Panel(
+        return Panel(
             panel_id=id_panel,
             cell_material=cell_material,
             peak_power=float(peak_power),

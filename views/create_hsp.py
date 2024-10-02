@@ -72,26 +72,28 @@ class CreateHsp(ft.View):
         a la hora de insertar en la base de datos, en caso contrario muestra una alerta inducando
         el error.
         """
-        is_correct, new_hsp = self.validation_empty_filed()
+        new_hsp = self.validation_empty_filed()
 
-        if is_correct:
-            
-            self.page.go('back')
-
+        if isinstance(new_hsp, HSP):
+            if new_hsp.exist():
+                self.alert.value = "Ya se tiene registrado este lugar"
+                self.alert.visible = True
+                self.place_tf.label_style = ft.TextStyle(color=ft.colors.RED_900)
+                self.place_tf.border_color = ft.colors.RED
+            else:
+                new_hsp.save()
+                self.page.go('back')
         else:
-            self.alert.value = "Error"
+            self.alert.value = new_hsp
             self.alert.visible = True
-            self.update()
 
-        self.alert.value = new_hsp
-        self.alert.visible = True
         self.update()
 
 
-    def validation_empty_filed(self) -> (bool, HSP | str):
+    def validation_empty_filed(self) -> HSP | str:
         """
         Se asegura de que los text filed no esten vacios
-        :return : una tupla (verdadero y la nueva hsp o falso y mensaje de error si hay algun campo vacio)
+        :return : retorna el nuevo hsp si no hay ningun campo vacio, o un error
         """
         place: str = self.place_tf.value
         value: str = self.value_tf.value
@@ -99,7 +101,7 @@ class CreateHsp(ft.View):
         if len(place) == 0:
             self.place_tf.label_style = ft.TextStyle(color=ft.colors.RED_900)
             self.place_tf.border_color = ft.colors.RED
-            return False, "Debe definir que lugar es"
+            return "Debe definir que lugar es"
         else:
             self.place_tf.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
             self.place_tf.border_color = ft.colors.BLUE_400
@@ -107,12 +109,12 @@ class CreateHsp(ft.View):
         if len(value) == 0:
             self.value_tf.label_style = ft.TextStyle(color=ft.colors.RED_900)
             self.value_tf.border_color = ft.colors.RED
-            return False, "Que valor tiene?"
+            return "Que valor tiene?"
         else:
             self.value_tf.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
             self.value_tf.border_color = ft.colors.BLUE_400
 
-        return True, HSP(place=place, value=float(value))
+        return HSP(place=place, value=float(value))
 
 
 

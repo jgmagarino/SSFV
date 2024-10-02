@@ -1,6 +1,7 @@
 import flet as ft
-from components.create_system_components import (SelectPlace, SelectPanel, SpecificData, CalcWithArea,
-                                                 CalcWithPeakPower, Economic, FinalFace)
+from components.create_system_components import (SelectPlace, SelectPanel, SpecificData)
+from components.system_calc import Calc
+from src.Mappers.panel_mapper import get_panel
 from style import (appbar, error_text, frame)
 
 class CreateSystem(ft.View):
@@ -10,95 +11,96 @@ class CreateSystem(ft.View):
         self.route = '/create_system'
         self.vertical_alignment = ft.MainAxisAlignment.CENTER
         self.bgcolor = ft.colors.GREY_300
-
-        self.appbar = appbar("Crear un sistema")
-
-        self.button_back = ft.ElevatedButton("Atras", on_click=self.back)
-        self.button_continue = ft.ElevatedButton("Calcular", on_click=self.create_system,
-                                                 bgcolor=ft.colors.BLUE, color=ft.colors.WHITE)
-
-        self.selected_place = SelectPlace()
-        self.selected_panel = SelectPanel()
-        self.exact_calc = SpecificData()
-
-        self.alert = error_text("Error")
-
-        self.content = frame(
-            content=ft.Column([
-                ft.Column([self.selected_place, self.selected_panel, self.exact_calc,
-                ft.Divider(height=1),
-                self.alert,
-                ft.Row([self.button_back, self.button_continue], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)]),
-            ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-
-        )
-
-        self.face = 0
-
         self.scroll = ft.ScrollMode.ADAPTIVE
         self.auto_scroll = True
 
-        self.controls.append(self.content)
+        self.appbar = appbar("Crear un sistema")
 
-    def validation(self, e):
+        self.calculate_button = ft.ElevatedButton("Calcular", bgcolor=ft.colors.BLUE,
+                                                  color=ft.colors.WHITE, on_click=self.continue_button)
 
-        if self.selected_panel.get_selected_panel() is None:
-            self.selected_panel.set_error()
-            self.alert.visible = True
-            self.alert.value = "Tiene que seleccionar un panel para continuar"
+        self.back_button = ft.ElevatedButton("Atras", on_click=lambda e: self.page.go('/'))
+
+        self.buttons = ft.Row([self.back_button, self.calculate_button],
+                              alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
+
+        self.hsp = SelectPlace()
+        self.panel = SelectPanel()
+        self.specific_data = SpecificData()
+        self.error = error_text("")
+
+        self.form_frame = frame(
+            ft.Column([
+                self.hsp,
+                self.panel,
+                self.specific_data,
+                ft.Divider(height=1),
+                self.error,
+                self.buttons
+            ])
+        )
+
+        self.calc_frame = None
+
+        self.controls.append(self.form_frame)
+
+    def validation_form(self) -> bool:
+        if self.panel.get_selected_panel() is None:
+            self.error.value = "Debe seleccionar un panel"
+            self.error.visible = True
+            self.panel.set_error()
+            self.update()
+            return False
         else:
-            self.alert.visible = False
-            self.selected_panel.set_normal()
+            self.panel.set_normal()
+
+        if self.specific_data.get_value() == "":
+            self.error.value = "Debe definir un area o una potencia a instalar"
+            self.error.visible = True
+            self.specific_data.set_error()
+            self.update()
+            return False
+        else:
+            self.specific_data.set_normal()
+
+        self.update()
+        return True
+
+    def continue_button(self, e):
+        if self.calc_frame is None:
+            if self.validation_form():
+                calc = Calc(
+                    self.hsp.get_hsp(),
+                    get_panel(self.panel.get_selected_panel()),
+                    self.specific_data.to_south.value,
+                    area=float(self.specific_data.get_value()) if self.specific_data.is_specific_area
+                    else None, peak_power_required=float(self.specific_data.get_value())
+                    if not self.specific_data.is_specific_area else None)
+
+                self.calc_frame = frame(
+                    ft.Column([
+                        calc,
+                        self.buttons
+                    ])
+                )
+
+                self.back_button.on_click = self.back
+
+                self.controls[-1] = self.calc_frame
+        else:
+            if isinstance(self.calc_frame.content.controls[0], Calc):
+                self.calc_frame.content.controls[0].continue_button()
 
         self.update()
 
     def back(self, e):
-        if self.face == 0:
-            self.page.go('/')
+        calc = self.calc_frame.content.controls[0]
 
-        if self.face == 1:
-            self.content.content = ft.Column([
-                ft.Column([self.selected_place, self.selected_panel, self.exact_calc,
-                ft.Divider(height=1),
-                self.alert,
-                ft.Row([self.button_back, self.button_continue], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)]),
-            ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-
-            self.face -= 1
-            self.button_continue.text = "Calcular"
-
-        self.update()
-
-    def create_system(self, e):
-        if self.face == 0:
-
-            if self.exact_calc.is_specific_area:
-                calc = CalcWithArea(self.exact_calc.get_value(), self.selected_panel.get_selected_panel(),
-                                    self.selected_place.get_hsp(), self.exact_calc.to_south.value)
+        if isinstance(calc, Calc):
+            if calc.all_calcs.visible:
+                self.controls[-1] = self.form_frame
+                self.calc_frame = None
             else:
-                calc = CalcWithPeakPower(self.exact_calc.get_value(), self.selected_panel.get_selected_panel(),
-                                  self.selected_place.get_hsp(), self.exact_calc.to_south)
-
-            self.content.content = ft.Column([
-                calc,
-                Economic(self.selected_panel.get_selected_panel(), calc.number_of_panels_value,
-                         calc.userful_energy_value),
-                ft.Divider(height=1),
-                ft.Row([self.button_back, self.button_continue],
-                       alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
-            ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-
-            self.face += 1
-            self.button_continue.text = "Guardar Calculos"
-
-        elif self.face == 1:
-            self.content.content = ft.Column([
-                FinalFace(),
-                ft.Divider(height=1),
-                ft.Row([self.button_back, self.button_continue],
-                       alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-            ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-
-            self.button_continue.text = "Guardar sistema"
+                calc.back_button()
 
         self.update()

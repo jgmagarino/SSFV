@@ -1,5 +1,6 @@
 import flet as ft
-from components.home_components import (DrawerHome, ActivatorDrawer, AppBarHome, GeneralContent)
+
+from components.home_components import (DrawerHome, ActivatorDrawer, AppBarHome)
 from components.show_components import (ShowSystem, ShowEntity)
 from src.Mappers.hsp_mapper import get_all_hps
 from src.Mappers.panel_mapper import get_all_panels
@@ -11,6 +12,8 @@ class HomeView(ft.View):
     def __init__(self):
         super().__init__()
         self.route = '/'
+
+        self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
         # Navegacion
         self.end_drawer = DrawerHome()
@@ -45,31 +48,30 @@ class HomeView(ft.View):
 
         if self.end_drawer.selected_index == 0:
             self.appbar.title = ft.Text("Sistemas", size=30)
-            self.content = ft.Column([ShowSystem(i) for i in get_all_systems()])
+            self.controls = [ft.Column([ShowSystem(i) for i in get_all_systems()])]
             self.add_button.on_click = lambda e: self.page.go('/create_system')
 
         if self.end_drawer.selected_index == 1:
             self.appbar.title = ft.Text("Paneles", size=30)
-            self.content = ft.Column([ShowEntity(i) for i in get_all_panels()])
+            self.controls = [ft.Column([ShowEntity(i) for i in get_all_panels()])]
             self.add_button.on_click = lambda e: self.page.go('/create_panel')
 
         if self.end_drawer.selected_index == 2:
             self.appbar.title = ft.Text("Horas solares pico", size=30)
-            self.content = ft.Column([ShowEntity(i) for i in get_all_hps()])
+            self.controls = [ft.Column([ShowEntity(i) for i in get_all_hps()])]
             self.add_button.on_click = lambda e: self.page.go('/create_hsp')
 
         if self.end_drawer.selected_index == 3:
             self.appbar.title = ft.Text("Tecnologias", size=30)
-            self.content = ft.Column([ShowEntity(i) for i in get_all_technologies()])
+            self.controls = [ft.Column([ShowEntity(i) for i in get_all_technologies()])]
             self.add_button.on_click = lambda e: self.page.go('/create_technology')
 
         if self.end_drawer.selected_index == 4:
-            self.appbar.title = ft.Text("Ayuda", size=30)
-            self.content.content = ft.Text("Aun nada")
-
-        if self.end_drawer.selected_index == 5:
-            self.appbar.title = ft.Text("Configuracion", size=30)
-            self.content.content = ft.Text("Aun nada")
+            self.appbar.title = ft.Text("Papelera", size=30)
+            self.bgcolor = ft.colors.RED_200
+            self.controls = []
+        else:
+            self.bgcolor = ft.colors.WHITE
 
         self.page.close(self.end_drawer)
         self.update()

@@ -1,6 +1,7 @@
 import flet as ft
 from src.modules.technology_module import Technology
 from style import (appbar, text_filed, unit_of_measurement, error_text, frame)
+from validation import only_real_numbs
 
 
 class CreateTechnology(ft.View):
@@ -29,7 +30,10 @@ class CreateTechnology(ft.View):
                                      ], spacing=0.1)
 
         self.surface_tf_1 = text_filed(width=70)
+        self.surface_tf_1.on_change = only_real_numbs
         self.surface_tf_2 = text_filed(width=70)
+        self.surface_tf_2.on_change = only_real_numbs
+
         self.surface = ft.Column([
             ft.Text("Area:", style=ft.TextStyle(color=ft.colors.BLUE_900)),
             ft.Row([self.surface_tf_1, ft.Text("-"), self.surface_tf_2, unit_of_measurement("m^2")]),
@@ -40,7 +44,7 @@ class CreateTechnology(ft.View):
 
         self.create = ft.ElevatedButton("Crear", bgcolor=ft.colors.BLUE_400, color=ft.colors.WHITE,
                                         on_click=self.insert)
-        self.cancelate = ft.ElevatedButton("Cancelar", on_click=lambda e: self.page.go('/'))
+        self.cancelate = ft.ElevatedButton("Cancelar", on_click=lambda e: self.page.go('back'))
 
         self.alert = error_text("No puede haber ningun campo vacio")
 
@@ -71,26 +75,31 @@ class CreateTechnology(ft.View):
     def insert(self, e):
         """
         Evento, inserta una nueva hora solar pico si la validacion es correcta y no hay error
-        a la hora de insertar en la base de datos, en caso contrario muestra una alerta inducando
+        a la hora de insertar en la base de datos, en caso contrario muestra una alerta indicando
         el error.
         """
-        is_correct, new_technology = self.validation_empty_filed()
+        new_technology = self.validation_empty_filed()
 
-        if is_correct and isinstance(new_technology, Technology):
-
-            new_technology.save()
-            self.page.go('/')
-
+        if isinstance(new_technology, Technology):
+            if new_technology.exist():
+                self.alert.value = "Ya esta registrada una tecnologia con este nombre"
+                self.alert.visible = True
+                self.technology_tf.label_style = ft.TextStyle(color=ft.colors.RED_900)
+                self.technology_tf.border_color = ft.colors.RED
+            else:
+                new_technology.save()
+                self.page.go('back')
         else:
             self.alert.value = new_technology
             self.alert.visible = True
-            self.update()
+
+        self.update()
 
 
-    def validation_empty_filed(self) -> (bool, Technology | str):
+    def validation_empty_filed(self) -> Technology | str:
         """
         Se asegura de que los text filed no esten vacios
-        :return : una tupla (verdadero y la nueva hsp o falso y mensaje de error si hay algun campo vacio)
+        :return : una nueva tecnologia o un mensaje de error
         """
 
         technology: str = self.technology_tf.value
@@ -99,7 +108,7 @@ class CreateTechnology(ft.View):
         if len(technology) == 0:
             self.technology_tf.label_style = ft.TextStyle(color=ft.colors.RED_900)
             self.technology_tf.border_color = ft.colors.RED
-            return False, "Que tipo de tecnologia es?"
+            return "Que tipo de tecnologia es?"
         else:
             self.technology_tf.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
             self.technology_tf.border_color = ft.colors.BLUE_400
@@ -111,7 +120,7 @@ class CreateTechnology(ft.View):
             self.surface_tf_2.label_style = ft.TextStyle(color=ft.colors.RED_900)
             self.surface_tf_2.border_color = ft.colors.RED
 
-            return False, "Que superficie requiere?"
+            return "Que superficie requiere?"
         else:
             self.surface_tf_1.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
             self.surface_tf_1.border_color = ft.colors.BLUE_400
@@ -119,7 +128,7 @@ class CreateTechnology(ft.View):
             self.surface_tf_2.label_style = ft.TextStyle(color=ft.colors.BLUE_900)
             self.surface_tf_2.border_color = ft.colors.BLUE_400
 
-        return True, Technology(
+        return Technology(
             technology=technology,
             surface=f"{surface[0]} - {surface[1]}",
         )

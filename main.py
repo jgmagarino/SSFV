@@ -27,7 +27,6 @@ def main(page: ft.Page):
             page.views.pop()
 
         if page.route == "/create_system":
-
             page.views.append(
                 CreateSystem()
             )
