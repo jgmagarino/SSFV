@@ -1,93 +1,166 @@
-Aplicación para el Cálculo de Sistemas Solares Fotovoltaicos (SSFV)
-“La energía solar nos enseña que la naturaleza es nuestra aliada, y que podemos aprovechar sus recursos sin agotarlos.”
+Sí, existen formas de mejorar la estructura y presentación de un README en GitHub para que sea más claro, atractivo y fácil de navegar. Aquí te dejo algunas recomendaciones sobre cómo puedes mejorar el README de tu proyecto:
 
-Integrantes
-Jose Manuel Gomez Magariño
-Osbel Duardo Lopez
-Problematica
-El desarrollo de un Sistema Solar Fotovoltaico (SSFV) eficiente requiere múltiples cálculos que pueden ser complejos y consumir tiempo. Esta aplicación busca optimizar ese proceso, permitiendo realizar cálculos de manera rápida y precisa para facilitar la toma de decisiones sobre los parámetros del diseño de un SSFV.
+### 1. **Estructura clara y concisa**
+Un README debe ser lo suficientemente informativo sin ser abrumador. Esto se logra usando encabezados claros, tablas, listas y enlaces para una fácil navegación.
 
-Objetivo
-La aplicación está diseñada para ayudar en el cálculo y análisis de los aspectos clave en la creación de un SSFV, tales como:
+### 2. **Índice (Tabla de Contenidos)**
+Agregar una tabla de contenidos ayuda a que los usuarios naveguen más rápido entre secciones.
 
-Tipo de Panel: Selección adecuada del panel solar.
-Hora Solar Pico (HSP): Consideración de la HSP específica del lugar.
-Orientación de los Paneles: Determinación de la mejor orientación.
-Potencia y Área Disponibles: Evaluación de la potencia a instalar y el área disponible.
-A partir de estos datos, la aplicación proporciona información clave como energía útil, potencia del sistema, área ocupada y número de paneles requeridos. Esto permite realizar análisis económicos y evaluar la viabilidad del proyecto.
+### 3. **Imágenes o Diagramas**
+Si tienes diagramas (como el de clases o entidad-relación), incluir imágenes visuales dentro del README lo hará más atractivo y fácil de entender. Estos se pueden subir directamente al repositorio y enlazarlos en el README.
 
-Público Objetivo
-La aplicación está dirigida a investigadores y profesionales del Centro de Estudios Medio-Ambientales (CEMA), quienes necesitan herramientas eficientes para el análisis y diseño de sistemas solares.
+### 4. **Dividir el contenido técnico en secciones**
+Las secciones técnicas sobre entidades del sistema, tecnologías y funcionalidades pueden ser más visuales usando tablas o listas claras. Esto mejora la legibilidad y el entendimiento.
 
-Justificación para el Desarrollo de una APK
-El desarrollo de una aplicación móvil responde a la necesidad de accesibilidad y facilidad de uso en cualquier momento y lugar, permitiendo a los usuarios realizar cálculos complejos de forma intuitiva y mejorando la eficiencia en la toma de decisiones.
+### 5. **Agregar un apartado de Instalación y Uso**
+Para proyectos de software, es útil incluir instrucciones básicas sobre cómo instalar y ejecutar la aplicación.
 
-Funcionalidades de la APK
-Gestión de Entidades: Registro y eliminación de Paneles, HSP, Tecnologías y Sistemas.
-Cálculos Intuitivos: Interfaz simple para seleccionar parámetros, con cálculos automáticos.
-Visualización de Cálculos: Detalle del proceso de cálculo para mayor transparencia y comprensión.
-Tecnologías Utilizadas
-Python: Utilizado por su facilidad de uso y su amplio ecosistema de librerías.
-SQLite: Base de datos local para gestionar eficientemente la información.
-Flet: Framework multiplataforma para el desarrollo de aplicaciones móviles, con posible expansión a escritorio y web.
-Entidades del Sistema
-Panel
-id_panel: Identificador único.
-peack_power: Potencia pico (W).
-cell_material: Material de las celdas.
-area: Área ocupada (m²).
-price: Precio del panel (cup).
-price_kwh_sen: Ganancia por kWh (cup).
-HSP (Hora Solar Pico)
-place: Ubicación de la HSP registrada.
-value: Valor de la HSP.
-Tecnología
-material: Material de las celdas.
-surface: Superficie requerida para generar un W.
-Sistema
-name: Nombre del sistema.
-panel_id: Tipo de panel utilizado.
-place: Lugar de construcción.
-progress: Progreso de la construcción.
-description: Descripción opcional.
-Cálculo del Sistema
-id_calc: Identificador único del cálculo.
-system_name: Nombre del sistema asociado.
-useful_energy: Energía útil.
-number_panels: Número de paneles.
-area: Área ocupada (m²).
-peak_power: Potencia pico del sistema.
-Cálculo Económico
-id_calc: Identificador único del cálculo.
-system_name: Nombre del sistema.
-cost: Costo total del sistema.
-income: Ingresos generados.
-recovery_period: Período de recuperación (años).
-Diagramas
-Diagrama de Entidad-Relación: Muestra la estructura de la base de datos y las relaciones entre las entidades.
-Diagrama de Clases: Presenta las clases utilizadas, incluyendo sus atributos y métodos.
-Diagrama de Flujo: Representa el proceso de cálculo y cómo se transforman las entradas en los resultados finales.
-Proceso de Desarrollo
-Inicialmente, se consideró el uso de archivos JSON, pero se optó por SQLite para garantizar una mejor integridad y organización de los datos. Además, se aplicaron principios de programación orientada a objetos y el uso del patrón Singleton para el manejo eficiente de instancias.
+A continuación, te muestro una versión optimizada:
 
-Pruebas y Validación
-Se realizaron pruebas con datos reales (como los paneles Hiku) y en colaboración con el equipo de CEMA, se verificaron los cálculos, logrando resultados precisos y satisfactorios.
+---
 
-Conclusiones
-Se desarrolló una APK ligera y funcional que facilita la construcción de sistemas solares fotovoltaicos. En futuras versiones, se planean nuevas funcionalidades como la exportación de datos y la compatibilidad con otras aplicaciones.
+# Aplicación para el Cálculo de Sistemas Solares Fotovoltaicos (SSFV)
 
-Recomendaciones Futuras
-Implementar funcionalidades adicionales:
+> “La energía solar nos enseña que la naturaleza es nuestra aliada, y que podemos aprovechar sus recursos sin agotarlos.”
 
-Exportación de datos a formatos como CSV o PDF.
-Compartir resultados a través de redes sociales o correo electrónico.
-Optimización de la Interfaz:
+### Integrantes:
+- **Jose Manuel Gomez Magariño**
+- **Osbel Duardo Lopez**
 
-Mejora de la experiencia del usuario con una interfaz más atractiva.
-Actualización continua:
+---
 
-Mantener la aplicación actualizada con los últimos avances en energía solar.
-Bibliografía
-Documentación SQLite: https://docs.python.org/3/library/sqlite3.html
-Documentación Flet: https://flet.dev/docs/
-Panel Hiku: https://efectosolar.es/tienda/paneles-solares/canadian-solar-450w-nueva-serie-hiku/
+## Índice
+1. [Descripción del Proyecto](#descripción-del-proyecto)
+2. [Problema a Resolver](#problema-a-resolver)
+3. [Objetivo de la Aplicación](#objetivo-de-la-aplicación)
+4. [Funcionalidades Principales](#funcionalidades-principales)
+5. [Tecnologías Utilizadas](#tecnologías-utilizadas)
+6. [Instalación y Uso](#instalación-y-uso)
+7. [Entidades del Sistema](#entidades-del-sistema)
+8. [Diagramas](#diagramas)
+9. [Pruebas y Validación](#pruebas-y-validación)
+10. [Conclusiones y Recomendaciones Futuras](#conclusiones-y-recomendaciones-futuras)
+11. [Bibliografía](#bibliografía)
+
+---
+
+## Descripción del Proyecto
+La aplicación permite realizar cálculos detallados para el diseño de **Sistemas Solares Fotovoltaicos (SSFV)**, optimizando el tiempo y precisión en el proceso de análisis. Facilita la toma de decisiones sobre parámetros clave como el tipo de panel, la Hora Solar Pico (HSP) y la orientación de los paneles, generando informes útiles sobre energía, potencia y viabilidad económica del proyecto.
+
+## Problema a Resolver
+El desarrollo de un SSFV eficiente implica cálculos complejos que pueden consumir mucho tiempo. Esta aplicación soluciona este problema al automatizar los cálculos necesarios para un diseño eficiente, permitiendo a los usuarios enfocarse en la toma de decisiones estratégicas.
+
+## Objetivo de la Aplicación
+La herramienta permite realizar cálculos basados en:
+- Tipo de panel solar.
+- Hora Solar Pico (HSP) específica de la ubicación.
+- Orientación y superficie disponible para la instalación.
+  
+Los resultados incluyen energía útil, potencia instalada, área ocupada y el número de paneles necesarios, además de facilitar un análisis económico de la inversión.
+
+---
+
+## Funcionalidades Principales
+1. **Gestión de Entidades**: Registro y eliminación de paneles, HSP, tecnologías y sistemas solares.
+2. **Cálculos Intuitivos**: Selección de parámetros con cálculos automáticos.
+3. **Visualización Detallada**: Transparencia en el cálculo y presentación clara de resultados.
+
+---
+
+## Tecnologías Utilizadas
+| Tecnología | Descripción |
+|------------|-------------|
+| **Python** | Lenguaje de programación utilizado para toda la lógica de la aplicación. |
+| **SQLite** | Base de datos local para gestionar eficientemente la información del sistema. |
+| **Flet**   | Framework multiplataforma que permite desarrollar aplicaciones móviles y de escritorio. |
+
+---
+
+## Instalación y Uso
+
+### Requisitos Previos
+- Python 3.x
+- SQLite
+
+### Instrucciones de Instalación
+1. Clonar el repositorio:
+   ```bash
+   git clone https://github.com/tuusuario/nombre-repositorio.git
+   ```
+2. Instalar las dependencias necesarias:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Ejecutar la aplicación:
+   ```bash
+   python main.py
+   ```
+
+### Uso
+1. Selecciona los parámetros de diseño (panel, HSP, orientación).
+2. La aplicación generará automáticamente los cálculos.
+3. Visualiza los resultados y el análisis económico.
+
+---
+
+## Entidades del Sistema
+
+| Entidad | Atributos Clave |
+|---------|-----------------|
+| **Panel** | `id_panel`, `peack_power`, `cell_material`, `area`, `price`, `price_kwh_sen` |
+| **HSP** | `place`, `value` |
+| **Tecnología** | `material`, `surface` |
+| **Sistema** | `name`, `panel_id`, `place`, `progress`, `description` |
+| **Cálculo del Sistema** | `id_calc`, `system_name`, `useful_energy`, `number_panels`, `area`, `peak_power` |
+| **Cálculo Económico** | `id_calc`, `system_name`, `cost`, `income`, `recovery_period` |
+
+---
+
+## Diagramas
+
+- **Diagrama de Entidad-Relación**: Visualiza cómo se relacionan las entidades principales del sistema.
+  
+  ![Diagrama ER](path_to_image/diagrama_ER.png)
+
+- **Diagrama de Clases**: Representa la estructura de las clases y sus interacciones.
+  
+  ![Diagrama de Clases](path_to_image/diagrama_clases.png)
+
+- **Diagrama de Flujo**: Ilustra el flujo de cálculo dentro de la aplicación.
+  
+  ![Diagrama de Flujo](path_to_image/diagrama_flujo.png)
+
+---
+
+## Pruebas y Validación
+Para validar la funcionalidad de la aplicación, se realizaron pruebas utilizando datos reales de paneles como el **Panel Hiku**. Se colaboró con el equipo del **CEMA** para verificar la precisión de los cálculos obtenidos.
+
+---
+
+## Conclusiones y Recomendaciones Futuras
+La aplicación ha demostrado ser una herramienta eficiente para los cálculos necesarios en la creación de SSFV, permitiendo análisis precisos y rápidos.
+
+### Recomendaciones Futuras:
+1. **Exportación de Datos**: Añadir la opción de exportar a CSV o PDF.
+2. **Compatibilidad con Otras Apps**: Integrar opciones para compartir resultados.
+3. **Optimización de la Interfaz**: Mejorar la usabilidad y estética de la UI.
+4. **Actualización Continua**: Incluir las últimas tendencias en energía solar.
+
+---
+
+## Bibliografía
+
+- [Documentación SQLite](https://docs.python.org/3/library/sqlite3.html)
+- [Documentación Flet](https://flet.dev/docs/)
+- [Panel Hiku](https://efectosolar.es/tienda/paneles-solares/canadian-solar-450w-nueva-serie-hiku/)
+
+---
+
+### Mejoras en esta Versión del README:
+
+1. **Tabla de Contenidos**: Facilita la navegación entre secciones.
+2. **Tablas**: Claridad en la presentación de tecnologías y entidades.
+3. **Imágenes**: Se pueden incluir diagramas que hagan el README más visual.
+4. **Instrucciones de Instalación**: Facilita que otros desarrolladores puedan usar y probar la aplicación fácilmente.
+
+¿Te gustaría implementar alguna de estas mejoras en tu README actual?
