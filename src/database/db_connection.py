@@ -30,7 +30,7 @@ class DbConnection:
             except sqlite3.Error as e:
                 print(f"Error al conectar a la base de datos: {e}")
 
-    def execute_query_all(self, query, array: [str] = None):
+    def execute_query_all(self, query, array: list[str] = None):
         """
         Ejecuta una sentencia SQL y todas las coincidencias.
 

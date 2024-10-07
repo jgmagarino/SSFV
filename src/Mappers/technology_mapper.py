@@ -15,14 +15,15 @@ def get_all_technologies() -> list[Technology]:
     result = db.execute_query_all(query)
 
     for i in range(len(result)):
-        technology, sur_face = result[i]
+        technology, sur_face, visible = result[i]
         new_technology = Technology(technology, sur_face)
+        new_technology.visible = visible
         aux_list.append(new_technology)
 
     return aux_list
 
 
-def get_technology(material) -> Technology:
+def get_technology(material) -> Technology | int:
     """
         Devuelve la tecnologia con el material especificado de la base de datos
     """
@@ -30,8 +31,21 @@ def get_technology(material) -> Technology:
 
     db = DbConnection()
     db.connect()
+    if exist_techno(material):
+        result = db.execute_query_one(query, [material])
+        material, surface, visible = result
+        tech = Technology(material, surface)
+        tech.visible = visible
+        return tech
+    return -1
+
+
+def exist_techno(material: str):
+    """Verifica si existe en la base de datos  el objeto tecnologia y de ser asi retorna True"""
+    db = DbConnection()
+    db.connect()
+
+    query = """SELECT 1 FROM Technology WHERE material = ?"""
     result = db.execute_query_one(query, [material])
 
-    material, surface = result
-    tech = Technology(material, surface)
-    return tech
+    return result == (1,)

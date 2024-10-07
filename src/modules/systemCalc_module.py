@@ -6,12 +6,12 @@ from src.modules.technology_module import Technology
 
 class SystemCalc:
     """Clase que referencia a los calculos del sistema"""
+
     def __init__(self, system: System):
         """
 
         :param system: Sistema al cual se le va a ejecutar los calculos
         """
-        self.__id = None
         self.__peak_power = 0
         self.__number_of_panels = 0
         self.__area = 0
@@ -67,38 +67,22 @@ class SystemCalc:
         self.__number_of_panels = value
 
     def save(self) -> bool:
-        if not self.exist():
-            db = DbConnection()
-            db.connect()
-
-            query = """INSERT INTO system_calc (system_name, useful_energy, number_of_panel, area, peak_power) 
-                                                        VALUES (?, ?, ?, ?, ?)"""
-
-            db.execute_query(query, [self.__system.name, self.__useful_energy,
-                                     self.__number_of_panels, self.__area, self.__peak_power])
-            return True
-        else:
-            return False
-
-    def delete(self):
-        if self.exist():
-            db = DbConnection()
-            db.connect()
-
-            db.delete_row('system_calc', "system_name", self.__system.name)
-            return True
-        else:
-            return False
-
-    def exist(self):
-        """Verifica si existe en la base de datos  el objeto correspondiente y de ser asi retorna True"""
         db = DbConnection()
         db.connect()
 
-        query = """SELECT 1 FROM system_calc WHERE system_name = ?"""
-        result = db.execute_query_one(query, [self.__system.name])
+        query = """INSERT INTO SystemCalc (system_name, useful_energy, number_of_panel, area, peak_power) 
+                                                    VALUES (?, ?, ?, ?, ?)"""
 
-        return result == (1,)
+        db.execute_query(query, [self.__system.name, self.__useful_energy,
+                                 self.__number_of_panels, self.__area, self.__peak_power])
+        return True
+
+    def delete(self):
+        db = DbConnection()
+        db.connect()
+
+        db.delete_row('SystemCalc', "system_name", self.__system.name)
+        return True
 
 
 # -------------------------------------------------------------------------------------------------------------
@@ -106,6 +90,7 @@ class SystemCalc:
 
 class SystemCalcPeakPower(SystemCalc):
     """Clase que referencia a los calculos del sistema en funcion de el area requerida"""
+
     def __init__(self, system: System, surface_available: float):
         super().__init__(system)
         self.__surface_available = float(surface_available)
@@ -119,10 +104,10 @@ class SystemCalcPeakPower(SystemCalc):
         db = DbConnection()
         db.connect()
 
-        query1 = f"""SELECT cell_material FROM panel WHERE panel_id = ?"""
+        query1 = f"""SELECT cell_material FROM Panel WHERE panel_id = ?"""
         technology_material = db.execute_query_one(query1, [panel_id])[0]
 
-        query2 = f"""SELECT surface FROM technology WHERE material = ?"""
+        query2 = f"""SELECT surface FROM Technology WHERE material = ?"""
         technology_surface = db.execute_query_one(query2, [technology_material])[0]
 
         technology = Technology(technology_material, technology_surface)
@@ -137,7 +122,7 @@ class SystemCalcPeakPower(SystemCalc):
         db = DbConnection()
         db.connect()
 
-        query = """SELECT area from panel WHERE panel_id = ?"""
+        query = """SELECT area from Panel WHERE panel_id = ?"""
         panel_area = db.execute_query_one(query, [panel_id])[0]
 
         self.number_of_panels = math.ceil(self.__surface_available / panel_area)
@@ -149,7 +134,7 @@ class SystemCalcPeakPower(SystemCalc):
         db = DbConnection()
         db.connect()
 
-        query = """SELECT peak_power from panel WHERE panel_id = ?"""
+        query = """SELECT peak_power from Panel WHERE panel_id = ?"""
         panel_power = db.execute_query_one(query, [panel_id])[0]
 
         if not self.system.to_south:
@@ -167,7 +152,7 @@ class SystemCalcPeakPower(SystemCalc):
         db = DbConnection()
         db.connect()
 
-        query = """SELECT value FROM hsp WHERE place = ?"""
+        query = """SELECT value FROM Hsp WHERE place = ?"""
         hsp = db.execute_query_one(query, [place])[0]
 
         result = self.calc_peak_power() * hsp
@@ -184,6 +169,7 @@ class SystemCalcPeakPower(SystemCalc):
 
 class SystemCalcArea(SystemCalc):
     """Clase que referencia a los calculos del sistema en funcion de la potencia pico a instalar"""
+
     def __init__(self, system: System, peak_powwer: float):
         super().__init__(system)
         self.__peak_power = float(peak_powwer)
@@ -197,10 +183,10 @@ class SystemCalcArea(SystemCalc):
         db = DbConnection()
         db.connect()
 
-        query1 = """SELECT cell_material FROM panel WHERE panel_id = ?"""
+        query1 = """SELECT cell_material FROM Panel WHERE panel_id = ?"""
         technology_material = db.execute_query_one(query1, [panel_id])[0]
 
-        query2 = """SELECT surface FROM technology WHERE material = ?"""
+        query2 = """SELECT surface FROM Technology WHERE material = ?"""
         technology_surface = db.execute_query_one(query2, [technology_material])[0]
         technology = Technology(technology_material, technology_surface)
 
@@ -215,7 +201,7 @@ class SystemCalcArea(SystemCalc):
         db = DbConnection()
         db.connect()
 
-        query = """SELECT value FROM hsp WHERE place = ?"""
+        query = """SELECT value FROM Hsp WHERE place = ?"""
         hsp = db.execute_query_one(query, [place])[0]
 
         result = self.__peak_power * hsp
@@ -230,10 +216,10 @@ class SystemCalcArea(SystemCalc):
         db = DbConnection()
         db.connect()
 
-        query1 = """SELECT peak_power FROM panel WHERE panel_id = ?"""
+        query1 = """SELECT peak_power FROM Panel WHERE panel_id = ?"""
         panel_power = db.execute_query_one(query1, [panel_id])[0]
 
-        query2 = """SELECT value FROM hsp WHERE place = ?"""
+        query2 = """SELECT value FROM Hsp WHERE place = ?"""
         hsp = db.execute_query_one(query2, [place])[0]
 
         result = (round((self.calc_useful_energy() / 0.654) * hsp * panel_power)) + 1
@@ -246,7 +232,7 @@ class SystemCalcArea(SystemCalc):
         db = DbConnection()
         db.connect()
 
-        query = """SELECT area from panel WHERE panel_id = ?"""
+        query = """SELECT area from Panel WHERE panel_id = ?"""
         panel_area = db.execute_query_one(query, [panel_id])[0]
 
         if not self.system.to_south:
